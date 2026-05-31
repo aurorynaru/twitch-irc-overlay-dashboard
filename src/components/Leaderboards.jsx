@@ -62,6 +62,7 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
           <thead>
             <tr>
               <th>Username</th>
+              <th onClick={() => handleSort('duels', 'level')}>Level <SortIndicator table="duels" column="level"/></th>
               <th onClick={() => handleSort('duels', 'duels_played')}>Played <SortIndicator table="duels" column="duels_played"/></th>
               <th onClick={() => handleSort('duels', 'duels_won')}>Won <SortIndicator table="duels" column="duels_won"/></th>
               <th onClick={() => handleSort('duels', 'duels_lost')}>Lost <SortIndicator table="duels" column="duels_lost"/></th>
@@ -72,7 +73,8 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
           <tbody>
             {sortedDuels.slice(0, 10).map(u => (
               <tr key={u.username}>
-                <td>{u.username}</td>
+                <td style={{ fontWeight: 'bold' }}>{u.username}</td>
+                <td style={{ color: 'var(--accent-color, #c97cff)' }}>{u.level || 1}</td>
                 <td>{u.duels_played}</td>
                 <td>{u.duels_won}</td>
                 <td>{u.duels_lost}</td>
@@ -91,6 +93,7 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
           <thead>
             <tr>
               <th>Username</th>
+              <th onClick={() => handleSort('raffles', 'level')}>Level <SortIndicator table="raffles" column="level"/></th>
               <th onClick={() => handleSort('raffles', 'raffles_joined')}>Joined <SortIndicator table="raffles" column="raffles_joined"/></th>
               <th onClick={() => handleSort('raffles', 'raffles_won')}>Won <SortIndicator table="raffles" column="raffles_won"/></th>
               <th onClick={() => handleSort('raffles', 'raffles_points_won')}>Pts Won <SortIndicator table="raffles" column="raffles_points_won"/></th>
@@ -99,7 +102,8 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
           <tbody>
             {sortedRaffles.slice(0, 10).map(u => (
               <tr key={u.username}>
-                <td>{u.username}</td>
+                <td style={{ fontWeight: 'bold' }}>{u.username}</td>
+                <td style={{ color: 'var(--accent-color, #c97cff)' }}>{u.level || 1}</td>
                 <td>{u.raffles_joined}</td>
                 <td>{u.raffles_won}</td>
                 <td style={{ color: 'var(--success-color, #4ade80)' }}>+{u.raffles_points_won}</td>
@@ -116,6 +120,7 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
           <thead>
             <tr>
               <th>Username</th>
+              <th onClick={() => handleSort('gamble', 'level')}>Level <SortIndicator table="gamble" column="level"/></th>
               <th onClick={() => handleSort('gamble', 'gamble_played')}>Played <SortIndicator table="gamble" column="gamble_played"/></th>
               <th onClick={() => handleSort('gamble', 'gamble_won')}>Won <SortIndicator table="gamble" column="gamble_won"/></th>
               <th onClick={() => handleSort('gamble', 'gamble_lost')}>Lost <SortIndicator table="gamble" column="gamble_lost"/></th>
@@ -126,7 +131,8 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
           <tbody>
             {sortedGamble.slice(0, 10).map(u => (
               <tr key={u.username}>
-                <td>{u.username}</td>
+                <td style={{ fontWeight: 'bold' }}>{u.username}</td>
+                <td style={{ color: 'var(--accent-color, #c97cff)' }}>{u.level || 1}</td>
                 <td>{u.gamble_played}</td>
                 <td>{u.gamble_won}</td>
                 <td>{u.gamble_lost}</td>
@@ -145,6 +151,7 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
           <thead>
             <tr>
               <th>Username</th>
+              <th onClick={() => handleSort('bets', 'level')}>Level <SortIndicator table="bets" column="level"/></th>
               <th onClick={() => handleSort('bets', 'bets_played')}>Played <SortIndicator table="bets" column="bets_played"/></th>
               <th onClick={() => handleSort('bets', 'bets_won')}>Won <SortIndicator table="bets" column="bets_won"/></th>
               <th onClick={() => handleSort('bets', 'bets_lost')}>Lost <SortIndicator table="bets" column="bets_lost"/></th>
@@ -156,7 +163,8 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
           <tbody>
             {sortedBets.slice(0, 10).map(u => (
               <tr key={u.username}>
-                <td>{u.username}</td>
+                <td style={{ fontWeight: 'bold' }}>{u.username}</td>
+                <td style={{ color: 'var(--accent-color, #c97cff)' }}>{u.level || 1}</td>
                 <td>{u.bets_played}</td>
                 <td>{u.bets_won}</td>
                 <td>{u.bets_lost}</td>
@@ -176,6 +184,7 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
           <thead>
             <tr>
               <th>Username</th>
+              <th onClick={() => handleSort('chatwar', 'level')}>Level <SortIndicator table="chatwar" column="level"/></th>
               <th onClick={() => handleSort('chatwar', 'chatwar_spent')}>Pts Spent <SortIndicator table="chatwar" column="chatwar_spent"/></th>
               <th onClick={() => handleSort('chatwar', 'chatwar_lost')}>Pts Lost <SortIndicator table="chatwar" column="chatwar_lost"/></th>
             </tr>
@@ -183,7 +192,8 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
           <tbody>
             {sortedChatwar.slice(0, 10).map(u => (
               <tr key={u.username}>
-                <td>{u.username}</td>
+                <td style={{ fontWeight: 'bold' }}>{u.username}</td>
+                <td style={{ color: 'var(--accent-color, #c97cff)' }}>{u.level || 1}</td>
                 <td>{u.chatwar_spent}</td>
                 <td style={{ color: 'var(--danger-color, #ef4444)' }}>-{u.chatwar_lost}</td>
               </tr>

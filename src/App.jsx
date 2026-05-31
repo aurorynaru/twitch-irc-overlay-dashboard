@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Search, Play, Pause, Volume2, Database, Terminal, Settings, ChevronDown, ChevronRight, Copy, RefreshCw } from 'lucide-react';
 import Leaderboards from './components/Leaderboards';
+import ItemsDirectory from './components/ItemsDirectory';
+import UserInventory from './components/UserInventory';
 
 const commandInstructions = {
   '!playsound': 'Play an audio file. Usage: !playsound <sound_name>',
@@ -63,12 +65,12 @@ const builtInAliases = {
 };
 
 function App() {
-  const [data, setData] = useState({ defaultCommands: [], customCommands: [], sounds: [], rewards: {}, userStats: [], emoteStats: [] });
+  const [data, setData] = useState({ defaultCommands: [], customCommands: [], sounds: [], rewards: {}, userStats: [], emoteStats: [], items: {}, rarities: [], inventory: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [apiUrl, setApiUrl] = useState(import.meta.env.VITE_API_URL); 
-  const [collapsed, setCollapsed] = useState({ builtIn: false, custom: false, sounds: false, stats: false });
+  const [collapsed, setCollapsed] = useState({ builtIn: false, custom: false, sounds: false, stats: false, items: false, inventory: false });
   const [activeTab, setActiveTab] = useState('home');
 
   const [statsSort, setStatsSort] = useState({
@@ -104,11 +106,13 @@ function App() {
     setError('');
     try {
       const cleanUrl = url.replace(/\/$/, '');
-      const [cmdRes, soundsRes, configRes, statsRes] = await Promise.all([
+      const [cmdRes, soundsRes, configRes, statsRes, itemsRes, invRes] = await Promise.all([
         axios.get(`${cleanUrl}/api/dashboard/commands`),
         axios.get(`${cleanUrl}/api/dashboard/sounds`),
         axios.get(`${cleanUrl}/api/dashboard/config`),
-        axios.get(`${cleanUrl}/api/dashboard/stats`)
+        axios.get(`${cleanUrl}/api/dashboard/stats`),
+        axios.get(`${cleanUrl}/api/dashboard/items`).catch(() => ({ data: { success: false } })),
+        axios.get(`${cleanUrl}/api/dashboard/inventory`).catch(() => ({ data: { success: false } }))
       ]);
       
       if (cmdRes.data.success && soundsRes.data.success && configRes.data.success && statsRes.data.success) {
@@ -118,7 +122,10 @@ function App() {
           sounds: soundsRes.data.sounds,
           rewards: configRes.data.rewards,
           userStats: statsRes.data.userStats,
-          emoteStats: statsRes.data.emoteStats
+          emoteStats: statsRes.data.emoteStats,
+          items: itemsRes.data?.items || {},
+          rarities: itemsRes.data?.rarities || [],
+          inventory: invRes.data?.inventory || []
         });
       } else {
         setError('Failed to fetch data from one or more endpoints.');
@@ -180,6 +187,8 @@ function App() {
           <button className={`nav-tab ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>Home</button>
           <button className={`nav-tab ${activeTab === 'sounds' ? 'active' : ''}`} onClick={() => setActiveTab('sounds')}>Playsounds</button>
           <button className={`nav-tab ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>Leaderboards</button>
+          <button className={`nav-tab ${activeTab === 'items' ? 'active' : ''}`} onClick={() => setActiveTab('items')}>Items</button>
+          <button className={`nav-tab ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => setActiveTab('inventory')}>Inventory Lookup</button>
         </div>
         
         <div className="header-controls">
@@ -234,11 +243,11 @@ function App() {
                 </div>
                 <div className="card">
                   <div className="card-header"><h3 className="card-title">Gift Sub</h3></div>
-                  <div className="card-body"><span className="stat-value">{data.rewards.giftsub} pts</span></div>
+                  <div className="card-body"><span className="stat-value">{data.rewards.giftsub} pts per sub</span></div>
                 </div>
                 <div className="card">
                   <div className="card-header"><h3 className="card-title">Watch Streak</h3></div>
-                  <div className="card-body"><span className="stat-value">{data.rewards.watchstreak} pts / streak</span></div>
+                  <div className="card-body"><span className="stat-value">{data.rewards.watchstreak} pts * streak count</span></div>
                 </div>
                 <div className="card">
                   <div className="card-header"><h3 className="card-title">Raffle Points</h3></div>
@@ -390,6 +399,14 @@ function App() {
               />
             </div>
           </div>
+          )}
+
+          {activeTab === 'items' && (
+            <ItemsDirectory items={data.items} rarities={data.rarities} />
+          )}
+
+          {activeTab === 'inventory' && (
+            <UserInventory inventory={data.inventory} items={data.items} />
           )}
         </>
       )}
