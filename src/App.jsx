@@ -11,9 +11,11 @@ const commandInstructions = {
   '!betstart': 'Start a betting session. Usage: !betstart <Description> <choice1,choice2> <time_in_seconds> ',
   '!betstop': 'Resolve a bet. Usage: !betstop <winning_choice>',
   '!betstatus': 'Check current bet info. Usage: !betstatus',
+  '!betcancel': 'Cancel a bet and refund points (Admin). Usage: !betcancel',
+  '!bet': 'Place a bet on an active betting session. Usage: !bet <choice> <amount>',
   '!points': 'Check your points. Usage: !points',
   '!gamble': 'Gamble your points. Usage: !gamble <amount>',
-  '!chatwar': 'Start a chat war. Usage: !chatwar <emote1> <emote2>',
+  '!chatwar': 'Start a chat war. Usage: !chatwar <emote1> <emote2> <cost> <time_in_minutes>',
   '!chatwarcancel': 'Cancel the chat war. Usage: !chatwarcancel',
   '!global': 'Global command settings (cooldown).',
   '!commandlist': 'Show all commands.',
@@ -34,8 +36,17 @@ const commandInstructions = {
   '!masspointssub': 'Remove points from all users who chatted in the last <time>. Usage !masspointssub <amount> <time>. sample !masspointssub 1000 10m',
   '!chatcooldown': 'set global cooldown for chat commands. Usage: !chatcooldown <time>. sample !chatcooldown 10s or !chatcooldown !playsound 10s',
   '!givepoints': 'Give points to users. Usage !givepoints <amount> <username>. sample !givepoints 50 username',
+  '!removepoints': 'Remove points from users (Admin). Usage: !removepoints <amount> <username>',
   '!deleteplaysound': 'Delete a playsound. Usage !deleteplaysound <soundname>. sample !deleteplaysound 5dollars',
   '!editrewards': 'Edit rewards. Usage !editrewards <type> <val1> [val2]. Types: sub, giftsub, watchstreak, raffle, multiraffle | !editrewards raffle 5000 50000 | !editrewards multiraffle 5 20 | !editrewards sub 10000',
+  '!lvlup': 'Level up using points. Usage: !lvlup <amount>, !lvlup 30%, or !lvlup all',
+  '!use': 'Use an item from your inventory. Usage: !use <item> [qty] or !use all <item>',
+  '!fish': 'Go fishing to earn items. Usage: !fish',
+  '!inventory': 'Check your items. Usage: !inventory or !inv',
+  '!buffs': 'Check your active buffs and effects. Usage: !buffs',
+  '!emotesize': 'Set the size of emotes on the overlay (Admin). Usage: !emotesize <size>',
+  '!emoteduration': 'Set how long emotes stay on the overlay (Admin). Usage: !emoteduration <seconds>',
+  '!clearoverlay': 'Clear all emotes and sounds from the screen (Admin). Usage: !clearoverlay',
 };
 
 const builtInAliases = {
@@ -62,6 +73,12 @@ const builtInAliases = {
   '!roulette': '!gamble',
   '!roll': '!gamble',
   '!setrewards': '!editrewards',
+   '!buylvl': '!lvlup',
+  '!buylevel': '!lvlup',
+  '!buylevels': '!lvlup',
+  '!levelup': '!lvlup',
+  '!inv': '!inventory',
+  '!redeem': '!use'
 };
 
 function App() {

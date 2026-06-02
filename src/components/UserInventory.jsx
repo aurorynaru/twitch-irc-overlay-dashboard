@@ -13,6 +13,15 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
     return 'Common';
   };
 
+  const getDescription = (itemName) => {
+    if (!items) return '';
+    for (const [r, list] of Object.entries(items)) {
+      const found = list.find(i => i.name === itemName);
+      if (found) return found.description;
+    }
+    return '';
+  };
+
   const rarityOrder = { 'Legendary': 1, 'Rare': 2, 'Uncommon': 3, 'Common': 4 };
   const searchTrimmed = search.trim().toLowerCase();
 
@@ -136,6 +145,7 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
                   <tr>
                     <th>User</th>
                     <th>Item Name</th>
+                    <th>Description</th>
                     <th>Rarity</th>
                     <th style={{ textAlign: 'right' }}>Quantity</th>
                   </tr>
@@ -145,6 +155,9 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
                     <tr key={i}>
                       <td style={{ opacity: 0.7 }}>{item.username}</td>
                       <td style={{ fontWeight: 'bold' }}>{item.item_name}</td>
+                      <td style={{ color: 'var(--text-muted)', fontSize: '0.9em', maxWidth: '300px', whiteSpace: 'normal', wordWrap: 'break-word' }}>
+                        {getDescription(item.item_name)}
+                      </td>
                       <td>
                         <span className={`rarity-badge rarity-${getRarity(item.item_name).toLowerCase()}`}>
                           {getRarity(item.item_name)}
@@ -155,7 +168,7 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
                   ))}
                   {filteredInventory.length === 0 && (
                     <tr>
-                      <td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
+                      <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
                         No inventory items found for this user.
                       </td>
                     </tr>
