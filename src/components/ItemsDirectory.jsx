@@ -24,7 +24,7 @@ const ItemsDirectory = ({ items, rarities }) => {
         allItems.push({
           ...item,
           chance: chance,
-          description: ITEMS_DESCRIPTION[item.name] || 'Unknown effect'
+          description: item.description || ITEMS_DESCRIPTION[item.name] || 'Unknown effect'
         });
       }
     }

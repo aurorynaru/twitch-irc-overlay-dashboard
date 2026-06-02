@@ -65,7 +65,7 @@ const builtInAliases = {
 };
 
 function App() {
-  const [data, setData] = useState({ defaultCommands: [], customCommands: [], sounds: [], rewards: {}, userStats: [], emoteStats: [], items: {}, rarities: [], inventory: [] });
+  const [data, setData] = useState({ defaultCommands: [], customCommands: [], sounds: [], rewards: {}, userStats: [], emoteStats: [], items: {}, rarities: [], inventory: [], activeEffects: [], userModifiers: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -125,7 +125,9 @@ function App() {
           emoteStats: statsRes.data.emoteStats,
           items: itemsRes.data?.items || {},
           rarities: itemsRes.data?.rarities || [],
-          inventory: invRes.data?.inventory || []
+          inventory: invRes.data?.inventory || [],
+          activeEffects: invRes.data?.activeEffects || [],
+          userModifiers: invRes.data?.userModifiers || []
         });
       } else {
         setError('Failed to fetch data from one or more endpoints.');
@@ -188,7 +190,7 @@ function App() {
           <button className={`nav-tab ${activeTab === 'sounds' ? 'active' : ''}`} onClick={() => setActiveTab('sounds')}>Playsounds</button>
           <button className={`nav-tab ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>Leaderboards</button>
           <button className={`nav-tab ${activeTab === 'items' ? 'active' : ''}`} onClick={() => setActiveTab('items')}>Items</button>
-          <button className={`nav-tab ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => setActiveTab('inventory')}>Inventory Lookup</button>
+          <button className={`nav-tab ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => setActiveTab('inventory')}>Inventory</button>
         </div>
         
         <div className="header-controls">
@@ -406,7 +408,7 @@ function App() {
           )}
 
           {activeTab === 'inventory' && (
-            <UserInventory inventory={data.inventory} items={data.items} />
+            <UserInventory inventory={data.inventory} items={data.items} activeEffects={data.activeEffects} userModifiers={data.userModifiers} />
           )}
         </>
       )}
