@@ -186,11 +186,17 @@ function App() {
     <div className="dashboard-container">
       <div className="sticky-header">
         <div className="nav-tabs">
-          <button className={`nav-tab ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>Home</button>
-          <button className={`nav-tab ${activeTab === 'sounds' ? 'active' : ''}`} onClick={() => setActiveTab('sounds')}>Playsounds</button>
-          <button className={`nav-tab ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>Leaderboards</button>
-          <button className={`nav-tab ${activeTab === 'items' ? 'active' : ''}`} onClick={() => setActiveTab('items')}>Items</button>
-          <button className={`nav-tab ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => setActiveTab('inventory')}>Inventory</button>
+          <select 
+            className="nav-dropdown" 
+            value={activeTab} 
+            onChange={(e) => setActiveTab(e.target.value)}
+          >
+            <option value="home">Home</option>
+            <option value="sounds">Playsounds</option>
+            <option value="stats">Leaderboards</option>
+            <option value="items">Items</option>
+            <option value="inventory">Inventory</option>
+          </select>
         </div>
         
         <div className="header-controls">

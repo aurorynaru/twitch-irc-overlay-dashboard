@@ -40,42 +40,38 @@ body {
 .nav-tabs {
   display: flex;
   gap: 15px;
-  overflow-x: auto;
-  white-space: nowrap;
+  flex-wrap: wrap;
   padding-bottom: 5px;
 }
 
-.nav-tabs::-webkit-scrollbar {
-  height: 4px;
-}
-
-.nav-tabs::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 4px;
-}
-
-.nav-tab {
+.nav-dropdown {
   background: var(--panel-bg);
-  color: var(--text-muted);
+  color: var(--accent);
   border: 1px solid var(--border-color);
-  padding: 10px 20px;
+  padding: 10px 15px;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: bold;
   cursor: pointer;
+  outline: none;
+  min-width: 200px;
   transition: all 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bf94ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
 }
 
-.nav-tab:hover {
+.nav-dropdown:hover, .nav-dropdown:focus {
+  border-color: var(--accent);
   background: var(--panel-hover);
-  color: var(--text-main);
-  border-color: var(--accent);
 }
 
-.nav-tab.active {
-  background: rgba(191, 148, 255, 0.15);
-  color: var(--accent);
-  border-color: var(--accent);
+.nav-dropdown option {
+  background-color: var(--panel-bg);
+  color: var(--text-main);
+  font-weight: normal;
 }
 
 .header-controls {
@@ -394,12 +390,13 @@ body {
 .volume-control {
   background: var(--panel-bg);
   border: 1px solid var(--border-color);
-  padding: 20px;
+  padding: 8px 16px;
   border-radius: 8px;
   display: flex;
-  gap: 15px;
+  gap: 10px;
   align-items: center;
-  min-width: 250px;
+  min-width: 150px;
+  width: 200px;
 }
 
 .volume-control input[type="range"] {
@@ -456,6 +453,20 @@ body {
   .sticky-header h1 {
     font-size: 1.8rem;
     justify-content: center;
+  }
+
+  .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  
+  .nav-tabs::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .nav-tabs::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
   }
 
   .header-controls {
