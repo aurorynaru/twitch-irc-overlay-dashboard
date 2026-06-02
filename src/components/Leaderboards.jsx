@@ -22,6 +22,14 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
     });
   };
 
+  const SortIndicator = ({ table, column }) => {
+    const config = statsSort[table];
+    if (config?.key === column) {
+      return <span>{config.dir === 'asc' ? ' ▲' : ' ▼'}</span>;
+    }
+    return null;
+  };
+
   const getTableData = (table, isEmotes = false) => {
     const sourceData = isEmotes ? emoteStats : userStats;
     const sortConfig = statsSort[table];
