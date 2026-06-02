@@ -47,7 +47,7 @@ const ItemsDirectory = ({ items, rarities }) => {
                 <th>Item Name</th>
                 <th>Rarity</th>
                 <th>Drop Chance</th>
-                <th>Effect (!redeem)</th>
+                <th>Effect (!redeem / !use)</th>
               </tr>
             </thead>
             <tbody>
