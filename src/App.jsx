@@ -242,7 +242,7 @@ function App() {
             <Search size={20} />
             <input 
               type="text" 
-              placeholder="Search commands or sounds..." 
+              placeholder="Search..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
