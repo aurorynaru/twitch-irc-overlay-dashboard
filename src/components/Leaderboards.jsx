@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [pages, setPages] = useState({
-    duels: 1, raffles: 1, gamble: 1, bets: 1, chatwar: 1, emotes: 1
+    level: 1, duels: 1, raffles: 1, gamble: 1, bets: 1, chatwar: 1, emotes: 1
   });
   const [economyRates, setEconomyRates] = useState(null);
 
@@ -17,7 +17,7 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
   }, []);
 
   useEffect(() => {
-    setPages({ duels: 1, raffles: 1, gamble: 1, bets: 1, chatwar: 1, emotes: 1 });
+    setPages({ level: 1, duels: 1, raffles: 1, gamble: 1, bets: 1, chatwar: 1, emotes: 1 });
   }, [searchTerm]);
 
   const handleSort = (table, key) => {
@@ -105,6 +105,7 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
     return data.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
   };
 
+  const levelData = getTableData('level');
   const duelsData = getTableData('duels');
   const rafflesData = getTableData('raffles');
   const gambleData = getTableData('gamble');
@@ -125,6 +126,32 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
         />
       </div>
       
+      {/* Top Chatters Level Table */}
+      <div className="card" style={{ overflowX: 'auto', padding: 0 }}>
+        <div className="card-header" style={{ padding: '20px' }}><h3 className="card-title">🌟 Top Chatters (Level)</h3></div>
+        <table className="stats-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Username</th>
+              <th onClick={() => handleSort('level', 'level')}>Level <SortIndicator table="level" column="level"/></th>
+              <th onClick={() => handleSort('level', 'xp')}>Total XP <SortIndicator table="level" column="xp"/></th>
+            </tr>
+          </thead>
+          <tbody>
+            {getVisibleData(levelData, 'level').map(u => (
+              <tr key={u.username}>
+                <td style={{ color: 'var(--text-muted)' }}>#{u._rank}</td>
+                <td style={{ fontWeight: 'bold' }}>{u.username}</td>
+                <td style={{ color: 'var(--accent-color, #c97cff)' }}>{u.level || 1}</td>
+                <td>{u.xp || 0}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <PaginationControls table="level" totalItems={levelData.length} />
+      </div>
+
       {/* Duels Table */}
       <div className="card" style={{ overflowX: 'auto', padding: 0 }}>
         <div className="card-header" style={{ padding: '20px' }}><h3 className="card-title">⚔️ Duels</h3></div>
