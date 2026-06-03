@@ -82,7 +82,7 @@ const builtInAliases = {
 };
 
 function App() {
-  const [data, setData] = useState({ defaultCommands: [], customCommands: [], sounds: [], rewards: {}, userStats: [], emoteStats: [], items: {}, rarities: [], inventory: [], activeEffects: [], userModifiers: [] });
+  const [data, setData] = useState({ defaultCommands: [], customCommands: [], sounds: [], rewards: {}, userStats: [], emoteStats: [], items: {}, rarities: [], inventory: [], activeEffects: [], userModifiers: [], economyRates: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -123,13 +123,14 @@ function App() {
     setError('');
     try {
       const cleanUrl = url.replace(/\/$/, '');
-      const [cmdRes, soundsRes, configRes, statsRes, itemsRes, invRes] = await Promise.all([
+      const [cmdRes, soundsRes, configRes, statsRes, itemsRes, invRes, economyRes] = await Promise.all([
         axios.get(`${cleanUrl}/api/dashboard/commands`),
         axios.get(`${cleanUrl}/api/dashboard/sounds`),
         axios.get(`${cleanUrl}/api/dashboard/config`),
         axios.get(`${cleanUrl}/api/dashboard/stats`),
         axios.get(`${cleanUrl}/api/dashboard/items`).catch(() => ({ data: { success: false } })),
-        axios.get(`${cleanUrl}/api/dashboard/inventory`).catch(() => ({ data: { success: false } }))
+        axios.get(`${cleanUrl}/api/dashboard/inventory`).catch(() => ({ data: { success: false } })),
+        axios.get(`${cleanUrl}/api/economy-rates`).catch(() => ({ data: null }))
       ]);
       
       if (cmdRes.data.success && soundsRes.data.success && configRes.data.success && statsRes.data.success) {
@@ -144,7 +145,8 @@ function App() {
           rarities: itemsRes.data?.rarities || [],
           inventory: invRes.data?.inventory || [],
           activeEffects: invRes.data?.activeEffects || [],
-          userModifiers: invRes.data?.userModifiers || []
+          userModifiers: invRes.data?.userModifiers || [],
+          economyRates: economyRes.data || null
         });
       } else {
         setError('Failed to fetch data from one or more endpoints.');
@@ -212,7 +214,7 @@ function App() {
             <option value="sounds">Playsounds</option>
             <option value="stats">Leaderboards</option>
             <option value="items">Items</option>
-            <option value="inventory">Inventory</option>
+            <option value="inventory">Users</option>
           </select>
         </div>
         
@@ -431,7 +433,7 @@ function App() {
           )}
 
           {activeTab === 'inventory' && (
-            <UserInventory inventory={data.inventory} items={data.items} activeEffects={data.activeEffects} userModifiers={data.userModifiers} />
+            <UserInventory inventory={data.inventory} items={data.items} activeEffects={data.activeEffects} userModifiers={data.userModifiers} userStats={data.userStats} economyRates={data.economyRates} />
           )}
         </>
       )}

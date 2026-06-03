@@ -5,8 +5,16 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
   const [pages, setPages] = useState({
     duels: 1, raffles: 1, gamble: 1, bets: 1, chatwar: 1, emotes: 1
   });
+  const [economyRates, setEconomyRates] = useState(null);
 
   const ITEMS_PER_PAGE = 10;
+
+  useEffect(() => {
+    fetch('/api/economy-rates')
+      .then(res => res.json())
+      .then(data => setEconomyRates(data))
+      .catch(console.error);
+  }, []);
 
   useEffect(() => {
     setPages({ duels: 1, raffles: 1, gamble: 1, bets: 1, chatwar: 1, emotes: 1 });
@@ -107,7 +115,7 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
 
-      <div style={{ alignSelf: 'flex-start' }}>
+      <div style={{ alignSelf: 'flex-start', display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
         <input 
           type="text" 
           placeholder="Search by username..." 
