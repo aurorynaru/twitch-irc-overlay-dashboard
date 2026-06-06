@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [pages, setPages] = useState({
-    level: 1, duels: 1, raffles: 1, gamble: 1, bets: 1, chatwar: 1, emotes: 1
+    level: 1, points: 1, duels: 1, raffles: 1, gamble: 1, bets: 1, chatwar: 1, emotes: 1
   });
   const [economyRates, setEconomyRates] = useState(null);
 
@@ -17,7 +17,7 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
   }, []);
 
   useEffect(() => {
-    setPages({ level: 1, duels: 1, raffles: 1, gamble: 1, bets: 1, chatwar: 1, emotes: 1 });
+    setPages({ level: 1, points: 1, duels: 1, raffles: 1, gamble: 1, bets: 1, chatwar: 1, emotes: 1 });
   }, [searchTerm]);
 
   const handleSort = (table, key) => {
@@ -106,6 +106,7 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
   };
 
   const levelData = getTableData('level');
+  const pointsData = getTableData('points');
   const duelsData = getTableData('duels');
   const rafflesData = getTableData('raffles');
   const gambleData = getTableData('gamble');
@@ -150,6 +151,32 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
           </tbody>
         </table>
         <PaginationControls table="level" totalItems={levelData.length} />
+      </div>
+
+      {/* Top Chatters Points Table */}
+      <div className="card" style={{ overflowX: 'auto', padding: 0 }}>
+        <div className="card-header" style={{ padding: '20px' }}><h3 className="card-title">💰 Top Chatters (Points)</h3></div>
+        <table className="stats-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Username</th>
+              <th onClick={() => handleSort('points', 'points')}>Points <SortIndicator table="points" column="points"/></th>
+              <th onClick={() => handleSort('points', 'level')}>Level <SortIndicator table="points" column="level"/></th>
+            </tr>
+          </thead>
+          <tbody>
+            {getVisibleData(pointsData, 'points').map(u => (
+              <tr key={u.username}>
+                <td style={{ color: 'var(--text-muted)' }}>#{u._rank}</td>
+                <td style={{ fontWeight: 'bold' }}>{u.username}</td>
+                <td style={{ color: 'var(--success-color, #4ade80)' }}>{u.points || 0}</td>
+                <td>{u.level || 1}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <PaginationControls table="points" totalItems={pointsData.length} />
       </div>
 
       {/* Duels Table */}

@@ -92,6 +92,7 @@ function App() {
 
   const [statsSort, setStatsSort] = useState({
     level: { key: 'level', dir: 'desc' },
+    points: { key: 'points', dir: 'desc' },
     duels: { key: 'duels_points_won', dir: 'desc' },
     raffles: { key: 'raffles_points_won', dir: 'desc' },
     gamble: { key: 'gamble_points_won', dir: 'desc' },
