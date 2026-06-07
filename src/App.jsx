@@ -27,6 +27,7 @@ const commandInstructions = {
   '!declineduel': 'Decline a pending duel request.',
   '!disable': '!disable a command. Usage !disable  <cmd> optional<time>. sample !disable !playsound 10m',
   '!enable': 'Enable a command. Usage !enable <cmd>.  sample !enable !playsound',
+  '!subonly': 'Make a command subscriber-only (Admin). Usage: !subonly <cmd> <true/false>. sample: !subonly !playsound true',
   '!raffle': 'Start a raffle. Usage !raffle <points amount> <time_in_minutes>. Use -<amount> to deduct points.',
   '!multiraffle': 'Start a multi-winner raffle. Usage !multiraffle <points amount> <time_in_minutes> <number_of_winners>. Use -<amount> to deduct points.',
   '!join': 'Join a raffle. Usage !join',
