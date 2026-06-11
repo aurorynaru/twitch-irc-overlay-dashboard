@@ -48,6 +48,11 @@ const commandInstructions = {
   '!emotesize': 'Set the size of emotes on the overlay (Admin). Usage: !emotesize <size>',
   '!emoteduration': 'Set how long emotes stay on the overlay (Admin). Usage: !emoteduration <seconds>',
   '!clearoverlay': 'Clear all emotes and sounds from the screen (Admin). Usage: !clearoverlay',
+  '!editconfig': 'Edit configuration variables (Admin). Usage: !editconfig <key> <value>',
+  '!refreshemotes': 'Refresh third party emotes (Admin). Usage: !refreshemotes',
+  '!dueltax': 'Check or set the duel tax percentage (Admin). Usage: !dueltax [percentage]',
+  '!giveitem': 'Give an item to a user (Admin). Usage: !giveitem <username> <item name> [amount]',
+  '!reloaditems': 'Reload items from items.json (Admin). Usage: !reloaditems',
 };
 
 const builtInAliases = {
