@@ -301,6 +301,10 @@ function App() {
                   <div className="card-header"><h3 className="card-title">Multi-Raffle Winners</h3></div>
                   <div className="card-body"><span className="stat-value">{data.rewards.multiraffle_min} - {data.rewards.multiraffle_max} winners</span></div>
                 </div>
+                <div className="card">
+                  <div className="card-header"><h3 className="card-title">Reward: Chat Cooldown (mins)</h3></div>
+                  <div className="card-body"><span className="stat-value">{data.rewards.chat_cooldown} mins</span></div>
+                </div>
               </div>
             </div>
           )}
