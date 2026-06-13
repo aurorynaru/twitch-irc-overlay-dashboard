@@ -87,6 +87,15 @@ const builtInAliases = {
   '!redeem': '!use'
 };
 
+const adminCommands = [
+  '!betcancel', '!addcommand', '!removecommand', '!editcommand', 
+  '!disable', '!enable', '!subonly', '!editpoints', '!masspointsadd', 
+  '!masspointssub', '!chatcooldown', '!givepoints', '!removepoints', 
+  '!deleteplaysound', '!editrewards', '!emotesize', '!emoteduration', 
+  '!clearoverlay', '!editconfig', '!refreshemotes', '!dueltax', 
+  '!giveitem', '!reloaditems', '!global'
+];
+
 function App() {
   const [data, setData] = useState({ defaultCommands: [], customCommands: [], sounds: [], rewards: {}, userStats: [], emoteStats: [], items: {}, rarities: [], inventory: [], activeEffects: [], userModifiers: [], economyRates: null });
   const [loading, setLoading] = useState(true);
@@ -198,7 +207,7 @@ function App() {
     setCollapsed(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const filteredDefaults = data.defaultCommands.filter(c => c.command.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredDefaults = data.defaultCommands.filter(c => !adminCommands.includes(c.command) && c.command.toLowerCase().includes(searchTerm.toLowerCase()));
   const filteredCustoms = data.customCommands.filter(c => c.command.toLowerCase().includes(searchTerm.toLowerCase()) || c.action.toLowerCase().includes(searchTerm.toLowerCase()));
   const filteredSounds = data.sounds
     .filter(s => (s.filename || '').toLowerCase().includes(searchTerm.toLowerCase()))
