@@ -40,8 +40,8 @@ const ItemsDirectory = ({ items, rarities }) => {
         <Package size={24} style={{ marginRight: '8px' }} /> Fishing Items Directory
       </h2>
       <div className="section-content">
-        <div className="table-container">
-          <table>
+        <div className="card" style={{ overflowX: 'auto', padding: 0 }}>
+          <table className="stats-table">
             <thead>
               <tr>
                 <th>Item Name</th>
