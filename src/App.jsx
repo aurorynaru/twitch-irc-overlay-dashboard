@@ -421,6 +421,12 @@ function App() {
                       <div className="sound-info">
                         <p className="sound-name" title={soundName}>{soundName}</p>
                         <p className="sound-command">{commandStr}</p>
+                        {(soundObj.customCost || soundObj.customCooldown) && (
+                          <div style={{ display: 'flex', gap: '5px', marginTop: '4px', flexWrap: 'wrap' }}>
+                            {soundObj.customCost && <span style={{ fontSize: '0.7rem', background: 'rgba(255,170,0,0.2)', color: '#ffaa00', padding: '2px 6px', borderRadius: '4px' }}>Cost: {soundObj.customCost}</span>}
+                            {soundObj.customCooldown && <span style={{ fontSize: '0.7rem', background: 'rgba(46,139,87,0.2)', color: '#2e8b57', padding: '2px 6px', borderRadius: '4px' }}>CD: {soundObj.customCooldown}ms</span>}
+                          </div>
+                        )}
                       </div>
                       <Copy size={18} className="copy-icon" />
                     </div>
