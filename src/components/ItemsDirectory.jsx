@@ -1,5 +1,5 @@
-import React from 'react';
-import { Package } from 'lucide-react';
+import React, { useState } from 'react';
+import { Package, Search } from 'lucide-react';
 
 const ITEMS_DESCRIPTION = {
   "gold coin": "Grants 100 points instantly.",
@@ -9,6 +9,9 @@ const ITEMS_DESCRIPTION = {
 };
 
 const ItemsDirectory = ({ items, rarities }) => {
+  const [filterQuery, setFilterQuery] = useState('');
+  const [sortMethod, setSortMethod] = useState('rarity');
+
   const allItems = [];
   if (items) {
     for (const [rarityId, list] of Object.entries(items)) {
@@ -30,14 +33,51 @@ const ItemsDirectory = ({ items, rarities }) => {
     }
   }
 
-  // Sort legendary -> common
+  let filteredItems = allItems;
+  if (filterQuery.trim()) {
+    const query = filterQuery.trim().toLowerCase();
+    filteredItems = filteredItems.filter(item => item.name.toLowerCase().includes(query));
+  }
+
+  // Sort
   const rarityOrder = { 'Legendary': 1, 'Rare': 2, 'Uncommon': 3, 'Common': 4 };
-  allItems.sort((a, b) => rarityOrder[a.rarity] - rarityOrder[b.rarity]);
+  filteredItems.sort((a, b) => {
+    if (sortMethod === 'rarity') {
+      const diff = rarityOrder[a.rarity] - rarityOrder[b.rarity];
+      if (diff === 0) return a.name.localeCompare(b.name);
+      return diff;
+    } else if (sortMethod === 'name') {
+      return a.name.localeCompare(b.name);
+    }
+    return 0;
+  });
 
   return (
     <div className="section">
-      <h2 style={{ display: 'flex', alignItems: 'center' }}>
-        <Package size={24} style={{ marginRight: '8px' }} /> Fishing Items Directory
+      <h2 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '15px' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Package size={24} style={{ marginRight: '8px' }} /> Fishing Items Directory
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <div className="search-bar" style={{ margin: 0, width: '250px' }}>
+            <Search size={20} />
+            <input 
+              type="text" 
+              placeholder="Search items..." 
+              value={filterQuery}
+              onChange={(e) => setFilterQuery(e.target.value)}
+            />
+          </div>
+          <select 
+            className="nav-dropdown" 
+            style={{ margin: 0, padding: '8px 12px' }}
+            value={sortMethod}
+            onChange={(e) => setSortMethod(e.target.value)}
+          >
+            <option value="rarity">Sort by Rarity</option>
+            <option value="name">Sort by Name</option>
+          </select>
+        </div>
       </h2>
       <div className="section-content">
         <div className="card" style={{ overflowX: 'auto', padding: 0 }}>
@@ -47,11 +87,16 @@ const ItemsDirectory = ({ items, rarities }) => {
                 <th>Item Name</th>
                 <th>Rarity</th>
                 <th>Drop Chance</th>
-                <th>Effect (!redeem / !use)</th>
+                <th>Description</th>
+                <th>Effect</th>
+                <th>Value</th>
+                <th>Uses</th>
+                <th>Duration</th>
+                <th>Global</th>
               </tr>
             </thead>
             <tbody>
-              {allItems.map((item, i) => (
+              {filteredItems.map((item, i) => (
                 <tr key={i}>
                   <td style={{ fontWeight: 'bold' }}>{item.name}</td>
                   <td>
@@ -60,13 +105,18 @@ const ItemsDirectory = ({ items, rarities }) => {
                     </span>
                   </td>
                   <td>{item.chance}%</td>
-                  <td style={{ color: 'var(--text-muted)' }}>{item.description}</td>
+                  <td style={{ color: 'var(--text-muted)', maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.description}>{item.description}</td>
+                  <td>{item.effectType}</td>
+                  <td>{item.effectValue}</td>
+                  <td>{item.uses}</td>
+                  <td>{item.effectDurationMinutes ? `${item.effectDurationMinutes}m` : '-'}</td>
+                  <td>{item.isGlobal === 1 ? 'Yes' : 'No'}</td>
                 </tr>
               ))}
-              {allItems.length === 0 && (
+              {filteredItems.length === 0 && (
                 <tr>
-                  <td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
-                    No items loaded
+                  <td colSpan="9" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
+                    No items found
                   </td>
                 </tr>
               )}
