@@ -11,6 +11,7 @@ const ITEMS_DESCRIPTION = {
 const ItemsDirectory = ({ items, rarities }) => {
   const [filterQuery, setFilterQuery] = useState('');
   const [sortMethod, setSortMethod] = useState('rarity');
+  const [effectFilter, setEffectFilter] = useState('');
 
   const allItems = [];
   if (items) {
@@ -38,6 +39,11 @@ const ItemsDirectory = ({ items, rarities }) => {
     const query = filterQuery.trim().toLowerCase();
     filteredItems = filteredItems.filter(item => item.name.toLowerCase().includes(query));
   }
+  if (effectFilter) {
+    filteredItems = filteredItems.filter(item => item.effectType === effectFilter);
+  }
+
+  const uniqueEffects = [...new Set(allItems.map(item => item.effectType))].filter(Boolean).sort();
 
   // Sort
   const rarityOrder = { 'Legendary': 1, 'Rare': 2, 'Uncommon': 3, 'Common': 4 };
@@ -68,6 +74,17 @@ const ItemsDirectory = ({ items, rarities }) => {
               onChange={(e) => setFilterQuery(e.target.value)}
             />
           </div>
+          <select 
+            className="nav-dropdown" 
+            style={{ margin: 0, padding: '8px 12px' }}
+            value={effectFilter}
+            onChange={(e) => setEffectFilter(e.target.value)}
+          >
+            <option value="">All Effects</option>
+            {uniqueEffects.map(effect => (
+              <option key={effect} value={effect}>{effect}</option>
+            ))}
+          </select>
           <select 
             className="nav-dropdown" 
             style={{ margin: 0, padding: '8px 12px' }}
