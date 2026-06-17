@@ -40,6 +40,9 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
     if (type === 'gamble_multiplier' || type.includes('multiplier')) {
       return `${val}x`;
     }
+    if (type === 'rarity_boost') {
+      return `${val > 0 ? '+' : ''}${val}%`;
+    }
     if (type.includes('boost') || type.includes('tax')) {
       return `${val > 0 ? '+' : ''}${Math.round(val * 100)}%`;
     }
@@ -108,9 +111,13 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
 
       const totalBonusRate = lvlPtBonusRate + (multiplier - 1);
 
+      const rarityBoosts = userEffects.filter(e => e.effect_type === 'rarity_boost');
+      let rarityBoostVal = 0;
+      for (const b of rarityBoosts) rarityBoostVal += b.effect_value;
+
       ptGain = (totalBonusRate * 100).toFixed(1);
-      legChance = (lvl * (economyRates.leg_bonus_rate || 0.01)).toFixed(2);
-      rareChance = (lvl * (economyRates.rare_bonus_rate || 0.05)).toFixed(2);
+      legChance = ((lvl * (economyRates.leg_bonus_rate || 0.01)) + (rarityBoostVal / 2)).toFixed(2);
+      rareChance = ((lvl * (economyRates.rare_bonus_rate || 0.05)) + rarityBoostVal).toFixed(2);
     }
 
     let globalRank = '?';
@@ -230,7 +237,9 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
                       fontSize: '14px'
                     }}>
                       <strong style={{ color: '#bd93f9' }}>{mod.modifier}</strong>
-                      <span style={{ marginLeft: '8px', color: '#f8f8f2' }}>{mod.value} uses</span>
+                      <span style={{ marginLeft: '8px', color: '#f8f8f2' }}>
+                        {mod.modifier === 'delayed_fish' ? `+${Math.round(mod.value / 60000)} mins` : `${mod.value} uses`}
+                      </span>
                       <div style={{ fontSize: '11px', opacity: 0.6, marginTop: '4px' }}>@{mod.username}</div>
                     </div>
                   ))}
