@@ -143,7 +143,11 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
             <div style={{ fontSize: '1.4em', fontWeight: 'bold' }}>{xp.toLocaleString()}</div>
           </div>
           <div style={{ background: 'rgba(0,0,0,0.2)', padding: '10px', borderRadius: '8px' }}>
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.9em' }}>Rank</div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.9em' }}>Points</div>
+            <div style={{ fontSize: '1.4em', fontWeight: 'bold', color: '#ffb86c' }}>{(matchedUser.points || 0).toLocaleString()}</div>
+          </div>
+          <div style={{ background: 'rgba(0,0,0,0.2)', padding: '10px', borderRadius: '8px' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.9em' }}>Rank {`(level)` } </div>
             <div style={{ fontSize: '1.4em', fontWeight: 'bold', color: '#fbbf24' }}>#{globalRank}</div>
           </div>
           <div style={{ background: 'rgba(0,0,0,0.2)', padding: '10px', borderRadius: '8px' }}>
