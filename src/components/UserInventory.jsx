@@ -7,40 +7,33 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
   const [rarityFilter, setRarityFilter] = useState('All');
   const [effectFilter, setEffectFilter] = useState('All');
 
-  // Extract rarities helper
-  const getRarity = (itemName) => {
-    if (!items) return 'Common';
+  const findItemDef = (itemName) => {
+    if (!items) return null;
     for (const [r, list] of Object.entries(items)) {
-      if (list.some(i => i.name === itemName)) return list[0].rarity;
+      const found = list.find(i => i.name.toLowerCase() === itemName.toLowerCase());
+      if (found) return found;
     }
-    return 'Common';
+    return null;
+  };
+
+  const getRarity = (itemName) => {
+    const def = findItemDef(itemName);
+    return def ? def.rarity : 'Common';
   };
 
   const getDescription = (itemName) => {
-    if (!items) return '';
-    for (const [r, list] of Object.entries(items)) {
-      const found = list.find(i => i.name === itemName);
-      if (found) return found.description;
-    }
-    return '';
+    const def = findItemDef(itemName);
+    return def ? def.description : '';
   };
 
   const getProperName = (itemName) => {
-    if (!items) return itemName;
-    for (const [r, list] of Object.entries(items)) {
-      const found = list.find(i => i.name.toLowerCase() === itemName.toLowerCase());
-      if (found) return found.name;
-    }
-    return itemName;
+    const def = findItemDef(itemName);
+    return def ? def.name : itemName;
   };
 
   const getEffectType = (itemName) => {
-    if (!items) return 'None';
-    for (const [r, list] of Object.entries(items)) {
-      const found = list.find(i => i.name === itemName);
-      if (found && found.effectType) return found.effectType;
-    }
-    return 'None';
+    const def = findItemDef(itemName);
+    return def && def.effectType ? def.effectType : 'None';
   };
 
   const effectTypes = new Set(['All']);
