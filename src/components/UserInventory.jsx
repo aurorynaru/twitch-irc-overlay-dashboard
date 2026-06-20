@@ -5,6 +5,7 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
   const [search, setSearch] = useState('');
   const [itemSearch, setItemSearch] = useState('');
   const [rarityFilter, setRarityFilter] = useState('All');
+  const [effectFilter, setEffectFilter] = useState('All');
 
   // Extract rarities helper
   const getRarity = (itemName) => {
@@ -24,24 +25,23 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
     return '';
   };
 
-  const getEffect = (itemName) => {
-    if (!items) return '-';
+  const getEffectType = (itemName) => {
+    if (!items) return 'None';
     for (const [r, list] of Object.entries(items)) {
       const found = list.find(i => i.name === itemName);
-      if (found) {
-        if (!found.effectType) return '-';
-        let effectStr = found.effectType;
-        if (found.effectValue !== undefined && found.effectValue !== null) {
-          effectStr += ` (${found.effectValue})`;
-        }
-        if (found.uses && found.uses > 1) {
-           effectStr += ` [${found.uses} uses]`;
-        }
-        return effectStr;
-      }
+      if (found && found.effectType) return found.effectType;
     }
-    return '-';
+    return 'None';
   };
+
+  const effectTypes = new Set(['All']);
+  if (items) {
+    Object.values(items).forEach(list => {
+      list.forEach(i => {
+        if (i.effectType) effectTypes.add(i.effectType);
+      });
+    });
+  }
 
   const rarityOrder = { 'Legendary': 1, 'Rare': 2, 'Uncommon': 3, 'Common': 4 };
   const searchTrimmed = search.trim().toLowerCase();
@@ -52,6 +52,7 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
     
     if (itemSearchTrimmed && !item.item_name.toLowerCase().includes(itemSearchTrimmed)) return false;
     if (rarityFilter !== 'All' && getRarity(item.item_name) !== rarityFilter) return false;
+    if (effectFilter !== 'All' && getEffectType(item.item_name) !== effectFilter) return false;
     
     return true;
   }).sort((a, b) => {
@@ -301,6 +302,16 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
                 <option value="Rare">Rare</option>
                 <option value="Legendary">Legendary</option>
               </select>
+              <select 
+                className="nav-dropdown" 
+                style={{ margin: 0, padding: '8px 12px' }}
+                value={effectFilter}
+                onChange={e => setEffectFilter(e.target.value)}
+              >
+                {Array.from(effectTypes).map(type => (
+                  <option key={type} value={type}>{type === 'All' ? 'All Effects' : type}</option>
+                ))}
+              </select>
             </div>
 
             {/* Inventory Table */}
@@ -311,7 +322,6 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
                     <th>User</th>
                     <th>Item Name</th>
                     <th>Description</th>
-                    <th>Effect</th>
                     <th>Rarity</th>
                     <th style={{ textAlign: 'right' }}>Quantity</th>
                   </tr>
@@ -324,9 +334,6 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
                       <td style={{ color: 'var(--text-muted)', fontSize: '0.9em' }}>
                         {getDescription(item.item_name)}
                       </td>
-                      <td style={{ color: 'var(--text-muted)' }}>
-                        {getEffect(item.item_name)}
-                      </td>
                       <td>
                         <span className={`rarity-badge rarity-${getRarity(item.item_name).toLowerCase()}`}>
                           {getRarity(item.item_name)}
@@ -337,7 +344,7 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
                   ))}
                   {filteredInventory.length === 0 && (
                     <tr>
-                      <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
+                      <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
                         No inventory items found for this user.
                       </td>
                     </tr>
