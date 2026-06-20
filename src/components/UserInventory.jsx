@@ -25,6 +25,15 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
     return '';
   };
 
+  const getProperName = (itemName) => {
+    if (!items) return itemName;
+    for (const [r, list] of Object.entries(items)) {
+      const found = list.find(i => i.name.toLowerCase() === itemName.toLowerCase());
+      if (found) return found.name;
+    }
+    return itemName;
+  };
+
   const getEffectType = (itemName) => {
     if (!items) return 'None';
     for (const [r, list] of Object.entries(items)) {
@@ -330,7 +339,7 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
                   {filteredInventory.map((item, i) => (
                     <tr key={i}>
                       <td style={{ color: 'var(--text-muted)' }}>{item.username}</td>
-                      <td style={{ fontWeight: 'bold' }}>{item.item_name}</td>
+                      <td style={{ fontWeight: 'bold' }}>{getProperName(item.item_name)}</td>
                       <td style={{ color: 'var(--text-muted)', fontSize: '0.9em' }}>
                         {getDescription(item.item_name)}
                       </td>
