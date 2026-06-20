@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Archive, Clock, Zap, User } from 'lucide-react';
 
-const UserInventory = ({ inventory = [], items, activeEffects = [], userModifiers = [], userStats = [], economyRates }) => {
+const UserInventory = ({ inventory = [], items, activeEffects = [], userModifiers = [], pendingFish = [], userStats = [], economyRates }) => {
   const [search, setSearch] = useState('');
   const [itemSearch, setItemSearch] = useState('');
   const [rarityFilter, setRarityFilter] = useState('All');
@@ -72,6 +72,7 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
 
   const filteredEffects = activeEffects.filter(eff => eff.target_user.toLowerCase().includes(searchTrimmed) || eff.target_user === 'GLOBAL');
   const filteredModifiers = userModifiers.filter(mod => mod.username.toLowerCase().includes(searchTrimmed));
+  const matchedPendingFish = pendingFish.find(pf => pf.username.toLowerCase().includes(searchTrimmed));
 
   const formatEffectValue = (type, val) => {
     if (type === 'gamble_multiplier' || type.includes('multiplier')) {
@@ -245,6 +246,20 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
             {renderUserStats()}
             
             {/* Buffs and Effects Section */}
+            {matchedPendingFish && (
+              <div className="buffs-container" style={{ background: 'var(--bg-secondary)', padding: '15px', borderRadius: '8px', marginBottom: '10px' }}>
+                <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '8px', color: '#60a5fa' }}>
+                  🎣 Currently Fishing
+                </h3>
+                <div style={{ background: 'rgba(96, 165, 250, 0.1)', border: '1px solid #60a5fa', padding: '8px 12px', borderRadius: '6px', fontSize: '14px', display: 'inline-block' }}>
+                  <strong style={{ color: '#60a5fa' }}>Fishing Line Cast</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', marginTop: '4px', color: 'var(--text-muted)' }}>
+                    <Clock size={12} /> {Math.max(0, Math.ceil((matchedPendingFish.catch_time - Date.now()) / 60000))}m left
+                  </div>
+                </div>
+              </div>
+            )}
+
             {(validEffects.length > 0 || filteredModifiers.length > 0) && (
               <div className="buffs-container" style={{ background: 'var(--bg-secondary)', padding: '15px', borderRadius: '8px' }}>
                 <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '8px', color: '#ffb86c' }}>

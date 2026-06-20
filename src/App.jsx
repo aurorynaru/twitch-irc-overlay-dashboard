@@ -163,6 +163,7 @@ function App() {
           inventory: invRes.data?.inventory || [],
           activeEffects: invRes.data?.activeEffects || [],
           userModifiers: invRes.data?.userModifiers || [],
+          pendingFish: invRes.data?.pendingFish || [],
           economyRates: economyRes.data || null
         });
       } else {
@@ -460,7 +461,7 @@ function App() {
           )}
 
           {activeTab === 'inventory' && (
-            <UserInventory inventory={data.inventory} items={data.items} activeEffects={data.activeEffects} userModifiers={data.userModifiers} userStats={data.userStats} economyRates={data.economyRates} />
+            <UserInventory inventory={data.inventory} items={data.items} activeEffects={data.activeEffects} userModifiers={data.userModifiers} pendingFish={data.pendingFish} userStats={data.userStats} economyRates={data.economyRates} />
           )}
         </>
       )}
