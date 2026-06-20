@@ -3,6 +3,8 @@ import { Search, Archive, Clock, Zap, User } from 'lucide-react';
 
 const UserInventory = ({ inventory = [], items, activeEffects = [], userModifiers = [], userStats = [], economyRates }) => {
   const [search, setSearch] = useState('');
+  const [itemSearch, setItemSearch] = useState('');
+  const [rarityFilter, setRarityFilter] = useState('All');
 
   // Extract rarities helper
   const getRarity = (itemName) => {
@@ -22,12 +24,37 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
     return '';
   };
 
+  const getEffect = (itemName) => {
+    if (!items) return '-';
+    for (const [r, list] of Object.entries(items)) {
+      const found = list.find(i => i.name === itemName);
+      if (found) {
+        if (!found.effectType) return '-';
+        let effectStr = found.effectType;
+        if (found.effectValue !== undefined && found.effectValue !== null) {
+          effectStr += ` (${found.effectValue})`;
+        }
+        if (found.uses && found.uses > 1) {
+           effectStr += ` [${found.uses} uses]`;
+        }
+        return effectStr;
+      }
+    }
+    return '-';
+  };
+
   const rarityOrder = { 'Legendary': 1, 'Rare': 2, 'Uncommon': 3, 'Common': 4 };
   const searchTrimmed = search.trim().toLowerCase();
+  const itemSearchTrimmed = itemSearch.trim().toLowerCase();
 
-  const filteredInventory = inventory.filter(item => 
-    item.username.toLowerCase().includes(searchTrimmed)
-  ).sort((a, b) => {
+  const filteredInventory = inventory.filter(item => {
+    if (!item.username.toLowerCase().includes(searchTrimmed)) return false;
+    
+    if (itemSearchTrimmed && !item.item_name.toLowerCase().includes(itemSearchTrimmed)) return false;
+    if (rarityFilter !== 'All' && getRarity(item.item_name) !== rarityFilter) return false;
+    
+    return true;
+  }).sort((a, b) => {
     const rarityA = getRarity(a.item_name);
     const rarityB = getRarity(b.item_name);
     return rarityOrder[rarityA] - rarityOrder[rarityB];
@@ -251,6 +278,31 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
               </div>
             )}
 
+            {/* Inventory Controls */}
+            <div style={{ display: 'flex', gap: '15px', marginBottom: '15px', marginTop: '20px' }}>
+              <div className="search-bar" style={{ width: '250px', margin: 0 }}>
+                <Search size={20} />
+                <input 
+                  type="text" 
+                  placeholder="Search item name..." 
+                  value={itemSearch}
+                  onChange={e => setItemSearch(e.target.value)}
+                />
+              </div>
+              <select 
+                className="nav-dropdown" 
+                style={{ margin: 0, padding: '8px 12px' }}
+                value={rarityFilter}
+                onChange={e => setRarityFilter(e.target.value)}
+              >
+                <option value="All">All Rarities</option>
+                <option value="Common">Common</option>
+                <option value="Uncommon">Uncommon</option>
+                <option value="Rare">Rare</option>
+                <option value="Legendary">Legendary</option>
+              </select>
+            </div>
+
             {/* Inventory Table */}
             <div className="card" style={{ overflowX: 'auto', padding: 0 }}>
               <table className="stats-table">
@@ -259,6 +311,7 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
                     <th>User</th>
                     <th>Item Name</th>
                     <th>Description</th>
+                    <th>Effect</th>
                     <th>Rarity</th>
                     <th style={{ textAlign: 'right' }}>Quantity</th>
                   </tr>
@@ -271,6 +324,9 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
                       <td style={{ color: 'var(--text-muted)', fontSize: '0.9em' }}>
                         {getDescription(item.item_name)}
                       </td>
+                      <td style={{ color: 'var(--text-muted)' }}>
+                        {getEffect(item.item_name)}
+                      </td>
                       <td>
                         <span className={`rarity-badge rarity-${getRarity(item.item_name).toLowerCase()}`}>
                           {getRarity(item.item_name)}
@@ -281,7 +337,7 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
                   ))}
                   {filteredInventory.length === 0 && (
                     <tr>
-                      <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
+                      <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
                         No inventory items found for this user.
                       </td>
                     </tr>
