@@ -289,7 +289,7 @@ function App() {
                 </div>
                 <div className="card">
                   <div className="card-header"><h3 className="card-title">Gift Sub</h3></div>
-                  <div className="card-body"><span className="stat-value">{data.rewards.giftsub} pts per sub</span></div>
+                  <div className="card-body"><span className="stat-value">{data.rewards.giftsub `(Streak amount × Streak amount × 20)`} </span></div>
                 </div>
                 <div className="card">
                   <div className="card-header"><h3 className="card-title">Watch Streak</h3></div>
