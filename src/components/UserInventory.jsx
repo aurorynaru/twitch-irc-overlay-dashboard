@@ -8,9 +8,10 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
   const [effectFilter, setEffectFilter] = useState('All');
 
   const findItemDef = (itemName) => {
-    if (!items) return null;
+    if (!items || !itemName) return null;
+    const cleanName = itemName.trim().toLowerCase();
     for (const [r, list] of Object.entries(items)) {
-      const found = list.find(i => i.name.toLowerCase() === itemName.toLowerCase());
+      const found = list.find(i => i.name.toLowerCase() === cleanName);
       if (found) return found;
     }
     return null;
