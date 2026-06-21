@@ -42,6 +42,7 @@ const commandInstructions = {
   '!editrewards': 'Edit rewards. Usage !editrewards <type> <val1> [val2]. Types: sub, giftsub, watchstreak, raffle, multiraffle | !editrewards raffle 5000 50000 | !editrewards multiraffle 5 20 | !editrewards sub 10000',
   '!lvlup': 'Level up using points. Usage: !lvlup <amount>, !lvlup 30%, or !lvlup all',
   '!use': 'Use an item from your inventory. Usage: !use <item> [qty] or !use all <item>',
+  '!shoot': 'Pay points to timeout a user. Usage: !shoot @username',
   '!fish': 'Go fishing to earn items. Usage: !fish',
   '!inventory': 'Check your items. Usage: !inventory or !inv',
   '!buffs': 'Check your active buffs and effects. Usage: !buffs',
