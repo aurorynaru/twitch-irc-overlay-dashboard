@@ -293,7 +293,7 @@ function App() {
                 </div>
                 <div className="card">
                   <div className="card-header"><h3 className="card-title">Watch Streak</h3></div>
-                  <div className="card-body"><span className="stat-value">{data.rewards.watchstreak}  {`((streak amount × streak amount / 3 ) × 20 )`} </span></div>
+                  <div className="card-body"><span className="stat-value">{data.rewards.watchstreak}  {`+ ((streak amount × streak amount / 3 ) × 20 )`} </span></div>
                 </div>
                 <div className="card">
                   <div className="card-header"><h3 className="card-title">Raffle Points</h3></div>
