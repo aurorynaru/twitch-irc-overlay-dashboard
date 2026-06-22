@@ -307,6 +307,22 @@ function App() {
                   <div className="card-header"><h3 className="card-title">Reward: Chat Cooldown (mins)</h3></div>
                   <div className="card-body"><span className="stat-value">{data.rewards.chat_cooldown} mins</span></div>
                 </div>
+                {data.economyRates && (
+                  <>
+                    <div className="card">
+                      <div className="card-header"><h3 className="card-title">Point Gain Level Bonus</h3></div>
+                      <div className="card-body"><span className="stat-value">{((data.economyRates.lvl_bonus_rate || 0.001) * 100).toFixed(1)}% per level</span></div>
+                    </div>
+                    <div className="card">
+                      <div className="card-header"><h3 className="card-title">Legendary Catch Bonus</h3></div>
+                      <div className="card-body"><span className="stat-value">+{data.economyRates.leg_bonus_rate || 0.01}% per level</span></div>
+                    </div>
+                    <div className="card">
+                      <div className="card-header"><h3 className="card-title">Rare Catch Bonus</h3></div>
+                      <div className="card-body"><span className="stat-value">+{data.economyRates.rare_bonus_rate || 0.05}% per level</span></div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
