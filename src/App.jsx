@@ -305,11 +305,11 @@ function App() {
                   <div className="card-body"><span className="stat-value">{data.rewards.watchstreak} {data.rewards.watchstreak_scaling ? `+ ((streak amount × streak amount / 3 ) × ${data.rewards.watchstreak_scaling} )` : ''} </span></div>
                 </div>
                 <div className="card">
-                  <div className="card-header"><h3 className="card-title">Raffle Points</h3></div>
+                  <div className="card-header"><h3 className="card-title" title="triggered when someone sub,re-sub,gift sub or donate bits" style={{ cursor: 'help', borderBottom: '1px dotted var(--text-muted)', display: 'inline-block' }}>Raffle Points</h3></div>
                   <div className="card-body"><span className="stat-value">{data.rewards.raffle_min} - {data.rewards.raffle_max} pts</span></div>
                 </div>
                 <div className="card">
-                  <div className="card-header"><h3 className="card-title">Multi-Raffle Winners</h3></div>
+                  <div className="card-header"><h3 className="card-title" title="triggered when someone sub,re-sub,gift sub or donate bits" style={{ cursor: 'help', borderBottom: '1px dotted var(--text-muted)', display: 'inline-block' }}>Multi-Raffle Winners</h3></div>
                   <div className="card-body"><span className="stat-value">{data.rewards.multiraffle_min} - {data.rewards.multiraffle_max} winners</span></div>
                 </div>
                 <div className="card">

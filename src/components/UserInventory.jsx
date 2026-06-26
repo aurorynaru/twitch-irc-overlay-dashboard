@@ -1,9 +1,28 @@
-import React, { useState } from 'react';
-import { Search, Archive, Clock, Zap, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Archive, Clock, Zap, User, Loader2 } from 'lucide-react';
 
 const UserInventory = ({ inventory = [], items, activeEffects = [], userModifiers = [], pendingFish = [], userStats = [], economyRates }) => {
+  const [displaySearch, setDisplaySearch] = useState('');
   const [search, setSearch] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  useEffect(() => {
+    if (search.trim()) {
+      setIsSearching(true);
+      const timer = setTimeout(() => setIsSearching(false), 1500);
+      return () => clearTimeout(timer);
+    } else {
+      setIsSearching(false);
+    }
+  }, [search]);
   const [itemSearch, setItemSearch] = useState('');
+
+  const allNames = React.useMemo(() => {
+    return Array.from(new Set([
+      ...(userStats || []).map(u => u.username)
+    ])).filter(Boolean);
+  }, [userStats]);
   const [rarityFilter, setRarityFilter] = useState('All');
   const [effectFilter, setEffectFilter] = useState('All');
 
@@ -219,14 +238,61 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <User size={24} style={{ marginRight: '8px' }} /> User Profiles
         </div>
-        <div className="search-bar" style={{ width: '300px', margin: 0 }}>
-          <Search size={20} />
-          <input 
-            type="text" 
-            placeholder="Search username exactly..." 
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ position: 'relative' }}>
+            <div className="search-bar" style={{ width: '300px', margin: 0 }}>
+              <Search size={20} />
+              <input 
+                type="text" 
+                placeholder="Search username" 
+                value={displaySearch}
+                onChange={e => {
+                  setDisplaySearch(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setSearch(displaySearch);
+                    setIsSearching(true);
+                    setShowSuggestions(false);
+                  }
+                }}
+              />
+            </div>
+            {showSuggestions && displaySearch && (
+              <div style={{ position: 'absolute', top: '100%', left: 0, width: '100%', background: 'var(--panel-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', zIndex: 10, maxHeight: '200px', overflowY: 'auto', marginTop: '5px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)', boxSizing: 'border-box' }}>
+                {allNames
+                  .filter(name => name && name.toLowerCase().includes(displaySearch.toLowerCase()))
+                  .slice(0, 10)
+                  .map(name => (
+                    <div 
+                      key={name}
+                      onClick={() => {
+                        setDisplaySearch(name);
+                        setSearch(name);
+                        setIsSearching(true);
+                        setShowSuggestions(false);
+                      }}
+                      style={{ padding: '10px 16px', cursor: 'pointer', borderBottom: '1px solid var(--border-color)', color: 'white', fontSize: '18px' }}
+                      onMouseEnter={(e) => e.target.style.background = 'var(--bg-color)'}
+                      onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                    >
+                      {name}
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+          <button 
+            onClick={() => {
+              setSearch(displaySearch);
+              setIsSearching(true);
+              setShowSuggestions(false);
+            }}
+            style={{ padding: '0 20px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'normal' }}
+          >
+            Search
+          </button>
         </div>
       </h2>
       <div className="section-content">
@@ -235,11 +301,24 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
             <Search size={48} style={{ opacity: 0.5, marginBottom: '10px' }} />
             <p>Type a username to view their stats, inventory, and buffs.</p>
           </div>
+        ) : isSearching ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px', color: 'var(--text-muted)' }}>
+            <style>
+              {`
+                @keyframes spin-loader {
+                  from { transform: rotate(0deg); }
+                  to { transform: rotate(360deg); }
+                }
+              `}
+            </style>
+            <Loader2 size={48} style={{ color: 'var(--accent)', marginBottom: '15px', animation: 'spin-loader 1s linear infinite' }} />
+            <p style={{ fontSize: '1.2em' }}>Fetching user data...</p>
+          </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {renderUserStats()}
             
-            {/* Buffs and Effects Section */}
+    
             {matchedPendingFish && (
               <div className="buffs-container" style={{ background: 'var(--bg-secondary)', padding: '15px', borderRadius: '8px', marginBottom: '10px' }}>
                 <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '8px', color: '#60a5fa' }}>

@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
 const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [displaySearchTerm, setDisplaySearchTerm] = useState('');
+  const [activeSearchTerm, setActiveSearchTerm] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  
   const [pages, setPages] = useState({
     level: 1, points: 1, duels: 1, raffles: 1, gamble: 1, bets: 1, chatwar: 1, emotes: 1
   });
@@ -18,7 +21,7 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
 
   useEffect(() => {
     setPages({ level: 1, points: 1, duels: 1, raffles: 1, gamble: 1, bets: 1, chatwar: 1, emotes: 1 });
-  }, [searchTerm]);
+  }, [activeSearchTerm]);
 
   const handleSort = (table, key) => {
     setStatsSort(prev => {
@@ -58,10 +61,10 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
     let ranked = sorted.map((item, index) => ({ ...item, _rank: index + 1 }));
 
     // 3. Filter
-    if (searchTerm) {
+    if (activeSearchTerm) {
       ranked = ranked.filter(item => {
         const name = isEmotes ? item.emote : item.username;
-        return name && name.toLowerCase().includes(searchTerm.toLowerCase());
+        return name && name.toLowerCase().includes(activeSearchTerm.toLowerCase());
       });
     }
 
@@ -114,17 +117,67 @@ const Leaderboards = ({ userStats, emoteStats, statsSort, setStatsSort }) => {
   const chatwarData = getTableData('chatwar');
   const emotesData = getTableData('emotes', true);
 
+  const allNames = React.useMemo(() => {
+    return Array.from(new Set([
+      ...(userStats || []).map(u => u.username),
+      ...(emoteStats || []).map(e => e.emote)
+    ])).filter(Boolean);
+  }, [userStats, emoteStats]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
 
-      <div style={{ alignSelf: 'flex-start', display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
-        <input 
-          type="text" 
-          placeholder="Search by username..." 
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: '300px', padding: '10px 16px', background: 'var(--panel-bg)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none' }}
-        />
+      <div style={{ alignSelf: 'flex-start', display: 'flex', flexDirection: 'column', gap: '5px', width: '100%', position: 'relative' }}>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <input 
+            type="text" 
+            placeholder="Search by username..." 
+            value={displaySearchTerm}
+            onChange={(e) => {
+              setDisplaySearchTerm(e.target.value);
+              setShowSuggestions(true);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                setActiveSearchTerm(displaySearchTerm);
+                setShowSuggestions(false);
+              }
+            }}
+            style={{ width: '300px', padding: '10px 16px', background: 'var(--panel-bg)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none' }}
+          />
+          <button 
+            onClick={() => {
+              setActiveSearchTerm(displaySearchTerm);
+              setShowSuggestions(false);
+            }}
+            style={{ padding: '10px 20px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            Search
+          </button>
+        </div>
+
+        {showSuggestions && displaySearchTerm && (
+          <div style={{ position: 'absolute', top: '100%', left: 0, width: '300px', background: 'var(--panel-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', zIndex: 10, maxHeight: '200px', overflowY: 'auto', marginTop: '5px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
+            {allNames
+              .filter(name => name && name.toLowerCase().includes(displaySearchTerm.toLowerCase()))
+              .slice(0, 10)
+              .map(name => (
+                <div 
+                  key={name}
+                  onClick={() => {
+                    setDisplaySearchTerm(name);
+                    setActiveSearchTerm(name);
+                    setShowSuggestions(false);
+                  }}
+                  style={{ padding: '10px 16px', cursor: 'pointer', borderBottom: '1px solid var(--border-color)', color: 'white' }}
+                  onMouseEnter={(e) => e.target.style.background = 'var(--bg-color)'}
+                  onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                >
+                  {name}
+                </div>
+              ))}
+          </div>
+        )}
       </div>
       
       {/* Top Chatters Level Table */}
