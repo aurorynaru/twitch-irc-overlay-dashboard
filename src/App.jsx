@@ -341,9 +341,12 @@ function App() {
                 {filteredDefaults.map(cmd => (
                   <div key={cmd.command} className="card" onClick={() => copyToClipboard(cmd.command, cmd.command)}>
                     {copiedId === cmd.command && <div className="copy-toast">Copied!</div>}
-                    <div className="card-header">
-                      <h3 className="card-title">{cmd.command}</h3>
-                      <Copy size={18} className="copy-icon" />
+                    <div className="card-header" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                      <h3 className="card-title" style={{ margin: 0 }}>{cmd.command}</h3>
+                      {cmd.isDisabled && <span style={{ background: '#ff4444', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75em', fontWeight: 'bold' }}>Disabled</span>}
+                      {cmd.isSubOnly && <span style={{ background: '#9146FF', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75em', fontWeight: 'bold' }}>Sub Only</span>}
+                      {cmd.isOfflineOnly && <span style={{ background: '#555', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75em', fontWeight: 'bold' }}>Offline Only</span>}
+                      <Copy size={18} className="copy-icon" style={{ marginLeft: 'auto' }} />
                     </div>
                     {commandInstructions[cmd.command] && (
                       <div className="card-instruction">{commandInstructions[cmd.command]}</div>
@@ -385,9 +388,12 @@ function App() {
                 {filteredCustoms.map(cmd => (
                   <div key={cmd.command} className="card" onClick={() => copyToClipboard(cmd.command, cmd.command)}>
                     {copiedId === cmd.command && <div className="copy-toast">Copied!</div>}
-                    <div className="card-header">
-                      <h3 className="card-title">{cmd.command}</h3>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div className="card-header" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                      <h3 className="card-title" style={{ margin: 0 }}>{cmd.command}</h3>
+                      {cmd.isDisabled && <span style={{ background: '#ff4444', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75em', fontWeight: 'bold' }}>Disabled</span>}
+                      {cmd.isSubOnly && <span style={{ background: '#9146FF', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75em', fontWeight: 'bold' }}>Sub Only</span>}
+                      {cmd.isOfflineOnly && <span style={{ background: '#555', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75em', fontWeight: 'bold' }}>Offline Only</span>}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: 'auto' }}>
                         <span className="badge">{cmd.cost} pts</span>
                         <Copy size={18} className="copy-icon" />
                       </div>
