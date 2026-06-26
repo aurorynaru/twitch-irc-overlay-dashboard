@@ -234,13 +234,13 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
 
   return (
     <div className="section">
-      <h2 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <h2 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '15px' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <User size={24} style={{ marginRight: '8px' }} /> User Profiles
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <div style={{ position: 'relative' }}>
-            <div className="search-bar" style={{ width: '300px', margin: 0 }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', flex: '1 1 auto', justifyContent: 'flex-end' }}>
+          <div style={{ position: 'relative', flex: '1 1 200px', maxWidth: '300px' }}>
+            <div className="search-bar" style={{ width: '100%', margin: 0 }}>
               <Search size={20} />
               <input 
                 type="text" 
