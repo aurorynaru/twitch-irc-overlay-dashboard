@@ -7,7 +7,7 @@ import UserInventory from './components/UserInventory';
 
 const commandInstructions = {
   '!playsound': 'Play an audio file. Usage: !playsound <sound_name>',
-  '!showemote': 'Display an emote on the overlay. Usage: !showemote <emote>',
+  '!showemote': 'Display an emote on the overlay. Usage: !showemote <emote> <modifier> | Examples: !showemote PogChamp RainTime hyper',
   '!betstart': 'Start a betting session. Usage: !betstart <Description> <choice1,choice2> <time_in_seconds> ',
   '!betstop': 'Resolve a bet. Usage: !betstop <winning_choice>',
   '!betstatus': 'Check current bet info. Usage: !betstatus',
@@ -98,7 +98,7 @@ const adminCommands = [
 ];
 
 function App() {
-  const [data, setData] = useState({ defaultCommands: [], customCommands: [], sounds: [], rewards: {}, userStats: [], emoteStats: [], items: {}, rarities: [], inventory: [], activeEffects: [], userModifiers: [], economyRates: null });
+  const [data, setData] = useState({ defaultCommands: [], customCommands: [], sounds: [], rewards: {}, emoteModifiers: {}, userStats: [], emoteStats: [], items: {}, rarities: [], inventory: [], activeEffects: [], userModifiers: [], economyRates: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -157,6 +157,7 @@ function App() {
           customCommands: cmdRes.data.customCommands,
           sounds: soundsRes.data.sounds,
           rewards: configRes.data.rewards,
+          emoteModifiers: configRes.data.emoteModifiers || {},
           userStats: statsRes.data.userStats,
           emoteStats: statsRes.data.emoteStats,
           items: itemsRes.data?.items || {},
@@ -373,6 +374,40 @@ function App() {
                           <span className="stat-value">{val !== undefined ? val : 'Default'}</span>
                         </div>
                       ))}
+                      {cmd.command === '!showemote' && data.emoteModifiers && Object.keys(data.emoteModifiers).length > 0 && (
+                        <div style={{ marginTop: '15px' }}>
+                          <h4 style={{ margin: '0 0 10px 0', color: 'var(--accent)', borderBottom: '1px solid var(--border)', paddingBottom: '4px' }}>Available Modifiers</h4>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {[
+                              { key: 'wide', desc: 'Stretches emote horizontally' },
+                              { key: 'cursed', desc: 'Grayscale and distorted' },
+                              { key: 'flipx', desc: 'Flips horizontally' },
+                              { key: 'flipy', desc: 'Flips vertically' },
+                              { key: 'bounce', desc: 'Bounces up and down' },
+                              { key: 'leave', desc: 'Slides out' },
+                              { key: 'arrive', desc: 'Slides in' },
+                              { key: 'jam', desc: 'Tilts back and forth' },
+                              { key: 'rainbow', desc: 'Rainbow hue effect' },
+                              { key: 'hyper', desc: 'Fast shaking effect' }
+                            ].map(mod => {
+                              const modData = data.emoteModifiers[mod.key] || {};
+                              return (
+                                <div className="stat-row" key={mod.key} title={mod.desc} style={{ cursor: 'help' }}>
+                                  <span className="stat-label" style={{ borderBottom: '1px dotted var(--text-muted)' }}>{mod.key}:</span>
+                                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    <span className="stat-value">+{modData.cost || 0} pts</span>
+                                    {modData.isDisabled ? (
+                                      <span style={{ background: '#ff4444', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.70em', fontWeight: 'bold' }}>Disabled</span>
+                                    ) : (
+                                      <span style={{ background: '#00C851', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.70em', fontWeight: 'bold' }}>Enabled</span>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
