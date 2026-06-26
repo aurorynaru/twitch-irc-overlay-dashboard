@@ -298,7 +298,7 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
             )}
 
             {/* Inventory Controls */}
-            <div style={{ display: 'flex', gap: '15px', marginBottom: '15px', marginTop: '20px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', marginBottom: '15px', marginTop: '20px' }}>
               <div className="search-bar" style={{ width: '250px', margin: 0 }}>
                 <Search size={20} />
                 <input 

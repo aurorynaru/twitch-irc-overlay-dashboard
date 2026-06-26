@@ -64,7 +64,7 @@ const ItemsDirectory = ({ items, rarities }) => {
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Package size={24} style={{ marginRight: '8px' }} /> Fishing Items Directory
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
           <div className="search-bar" style={{ margin: 0, width: '250px' }}>
             <Search size={20} />
             <input 
