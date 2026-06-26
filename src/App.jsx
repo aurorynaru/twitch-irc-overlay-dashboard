@@ -388,7 +388,7 @@ function App() {
                               { key: 'arrive', desc: 'Slides in' },
                               { key: 'jam', desc: 'Tilts back and forth' },
                               { key: 'rainbow', desc: 'Rainbow hue effect' },
-                              { key: 'hyper', desc: 'Fast shaking effect' }
+                              { key: 'hyper', desc: 'Deep fried + fast shaking effect' }
                             ].map(mod => {
                               const modData = data.emoteModifiers[mod.key] || {};
                               return (
