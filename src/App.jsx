@@ -296,6 +296,10 @@ function App() {
                   <div className="card-body"><span className="stat-value">{data.rewards.giftsub} {data.rewards.giftsub_scaling ? `+ ((total gifted subs × total gifted subs) × ${data.rewards.giftsub_scaling} )` : ''} </span></div>
                 </div>
                 <div className="card">
+                  <div className="card-header"><h3 className="card-title">Max Buff Bonus (Gamble/Bets)</h3></div>
+                  <div className="card-body"><span className="stat-value">{data.rewards.active_action_bonus_cap ? data.rewards.active_action_bonus_cap.toLocaleString() : '5,000'} pts</span></div>
+                </div>
+                <div className="card">
                         <div className="card-header"><h3 className="card-title">Watch Streak{data.rewards.watchstreak_cap ? ` (max reward ${data.rewards.watchstreak_cap.toLocaleString()})` : ''}</h3></div>
                   <div className="card-body"><span className="stat-value">{data.rewards.watchstreak} {data.rewards.watchstreak_scaling ? `+ ((streak amount × streak amount / 3 ) × ${data.rewards.watchstreak_scaling} )` : ''} </span></div>
                 </div>
