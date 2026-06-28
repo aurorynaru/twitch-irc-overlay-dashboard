@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Search, Play, Pause, Volume2, Database, Terminal, Settings, ChevronDown, ChevronRight, Copy, RefreshCw } from 'lucide-react';
 import Leaderboards from './components/Leaderboards';
 import ItemsDirectory from './components/ItemsDirectory';
+import Submissions from './components/Submissions';
 import UserInventory from './components/UserInventory';
 
 const commandInstructions = {
@@ -105,6 +106,9 @@ function App() {
   const [apiUrl, setApiUrl] = useState(import.meta.env.VITE_API_URL); 
   const [collapsed, setCollapsed] = useState({ builtIn: false, custom: false, sounds: false, stats: false, items: false, inventory: false });
   const [activeTab, setActiveTab] = useState('home');
+  const [twitchToken, setTwitchToken] = useState(localStorage.getItem('twitchToken') || null);
+  const [twitchUser, setTwitchUser] = useState(null);
+  const [twitchClientId, setTwitchClientId] = useState(null);
 
   const [statsSort, setStatsSort] = useState({
     level: { key: 'level', dir: 'desc' },
@@ -118,6 +122,8 @@ function App() {
   });
   const [copiedId, setCopiedId] = useState(null);
   const [volume, setVolume] = useState(0.2); // Default 20% volume
+  const [soundCategoryFilter, setSoundCategoryFilter] = useState('');
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [soundSortBy, setSoundSortBy] = useState('date-desc');
   
   const [playingSound, setPlayingSound] = useState(null);
@@ -126,6 +132,18 @@ function App() {
   useEffect(() => {
     fetchData(apiUrl);
     
+    // Check for Twitch OAuth callback hash
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token')) {
+      const params = new URLSearchParams(hash.substring(1));
+      const token = params.get('access_token');
+      if (token) {
+        localStorage.setItem('twitchToken', token);
+        setTwitchToken(token);
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    }
+
     // Cleanup audio on unmount
     return () => {
       audioRef.current.pause();
@@ -136,19 +154,46 @@ function App() {
     audioRef.current.volume = volume;
   }, [volume]);
 
+  useEffect(() => {
+    const verifyToken = async () => {
+      if (!twitchToken) {
+        setTwitchUser(null);
+        return;
+      }
+      try {
+        const cleanUrl = apiUrl.replace(/\/$/, '');
+        const res = await axios.post(`${cleanUrl}/api/auth/verify`, { token: twitchToken });
+        if (res.data.success) {
+          setTwitchUser(res.data.username);
+        } else {
+          localStorage.removeItem('twitchToken');
+          setTwitchToken(null);
+          setTwitchUser(null);
+        }
+      } catch (err) {
+        console.error('Failed to verify Twitch token', err);
+        localStorage.removeItem('twitchToken');
+        setTwitchToken(null);
+        setTwitchUser(null);
+      }
+    };
+    verifyToken();
+  }, [twitchToken, apiUrl]);
+
   const fetchData = async (url) => {
     setLoading(true);
     setError('');
     try {
       const cleanUrl = url.replace(/\/$/, '');
-      const [cmdRes, soundsRes, configRes, statsRes, itemsRes, invRes, economyRes] = await Promise.all([
+      const [cmdRes, soundsRes, configRes, statsRes, itemsRes, invRes, economyRes, clientRes] = await Promise.all([
         axios.get(`${cleanUrl}/api/dashboard/commands`),
         axios.get(`${cleanUrl}/api/dashboard/sounds`),
         axios.get(`${cleanUrl}/api/dashboard/config`),
         axios.get(`${cleanUrl}/api/dashboard/stats`),
         axios.get(`${cleanUrl}/api/dashboard/items`).catch(() => ({ data: { success: false } })),
         axios.get(`${cleanUrl}/api/dashboard/inventory`).catch(() => ({ data: { success: false } })),
-        axios.get(`${cleanUrl}/api/economy-rates`).catch(() => ({ data: null }))
+        axios.get(`${cleanUrl}/api/economy-rates`).catch(() => ({ data: null })),
+        axios.get(`${cleanUrl}/api/config/client_id`).catch(() => ({ data: { client_id: null } }))
       ]);
       
       if (cmdRes.data.success && soundsRes.data.success && configRes.data.success && statsRes.data.success) {
@@ -168,6 +213,9 @@ function App() {
           pendingFish: invRes.data?.pendingFish || [],
           economyRates: economyRes.data || null
         });
+        if (clientRes && clientRes.data && clientRes.data.client_id) {
+          setTwitchClientId(clientRes.data.client_id);
+        }
       } else {
         setError('Failed to fetch data from one or more endpoints.');
       }
@@ -212,8 +260,12 @@ function App() {
 
   const filteredDefaults = data.defaultCommands.filter(c => !adminCommands.includes(c.command) && c.command.toLowerCase().includes(searchTerm.toLowerCase()));
   const filteredCustoms = data.customCommands.filter(c => c.command.toLowerCase().includes(searchTerm.toLowerCase()) || c.action.toLowerCase().includes(searchTerm.toLowerCase()));
+  
+  const uniqueCategories = ['All', ...new Set(data.sounds.map(s => s.category || 'Uncategorized').filter(Boolean))];
+
   const filteredSounds = data.sounds
     .filter(s => (s.filename || '').toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter(s => !soundCategoryFilter || soundCategoryFilter === 'All' || (s.category || 'Uncategorized') === soundCategoryFilter)
     .sort((a, b) => {
       if (soundSortBy === 'name-asc') return (a.filename || '').localeCompare(b.filename || '');
       if (soundSortBy === 'name-desc') return (b.filename || '').localeCompare(a.filename || '');
@@ -235,6 +287,7 @@ function App() {
             <option value="stats">Leaderboards</option>
             <option value="items">Items</option>
             <option value="inventory">Users</option>
+            <option value="contribute">Contribute</option>
           </select>
         </div>
         
@@ -260,6 +313,39 @@ function App() {
             </div>
           </div>
 
+          <div className="twitch-auth" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {twitchUser ? (
+              <>
+                <span style={{ color: 'white', fontWeight: 'bold' }}>{twitchUser}</span>
+                <button 
+                  onClick={() => {
+                    localStorage.removeItem('twitchToken');
+                    setTwitchToken(null);
+                    setTwitchUser(null);
+                  }}
+                  style={{ padding: '8px 12px', background: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                >Logout</button>
+              </>
+            ) : (
+              <a 
+                href={twitchClientId ? `https://id.twitch.tv/oauth2/authorize?client_id=${twitchClientId}&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}&response_type=token&scope=&force_verify=false` : '#'}
+                style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  padding: '10px 16px', 
+                  background: '#9146FF', 
+                  color: 'white', 
+                  textDecoration: 'none', 
+                  borderRadius: '4px', 
+                  fontWeight: 'bold', 
+                  opacity: twitchClientId ? 1 : 0.5 
+                }}
+                title={twitchClientId ? '' : 'Loading Client ID...'}
+              >
+                Login with Twitch
+              </a>
+            )}
+          </div>
           <div className="search-bar">
             <Search size={20} />
             <input 
@@ -458,18 +544,80 @@ function App() {
                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Available Playsounds ({filteredSounds.length})</span>
               </h2>
               {!collapsed.sounds && (
-                <div className="sort-controls" onClick={(e) => e.stopPropagation()} style={{ marginTop: '5px' }}>
-                  <label style={{ color: 'var(--text-muted)' }}>Sort by:</label>
-                  <select 
-                    value={soundSortBy} 
-                    onChange={(e) => setSoundSortBy(e.target.value)}
-                    style={{ background: 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
-                  >
-                    <option value="date-desc">Date (Newest)</option>
-                    <option value="date-asc">Date (Oldest)</option>
-                    <option value="name-asc">Name (A-Z)</option>
-                    <option value="name-desc">Name (Z-A)</option>
-                  </select>
+                <div className="sort-controls" onClick={(e) => e.stopPropagation()} style={{ marginTop: '5px', display: 'flex', gap: '15px' }}>
+                  <div style={{display:'flex', alignItems:'center', gap:'5px'}}>
+                    <label style={{ color: 'var(--text-muted)' }}>Category:</label>
+                    <div style={{ position: 'relative' }}>
+                      <input 
+                        value={soundCategoryFilter} 
+                        onChange={(e) => {
+                          setSoundCategoryFilter(e.target.value);
+                          setShowCategoryDropdown(true);
+                        }}
+                        onFocus={() => setShowCategoryDropdown(true)}
+                        onBlur={() => setTimeout(() => setShowCategoryDropdown(false), 200)}
+                        placeholder="Type or select..."
+                        style={{ background: 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)', padding: '5px 10px', borderRadius: '4px', width: '150px' }}
+                      />
+                      {showCategoryDropdown && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '100%',
+                          left: '0',
+                          width: '100%',
+                          maxHeight: '200px',
+                          overflowY: 'auto',
+                          background: '#1a1a1a',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '4px',
+                          zIndex: 10,
+                          marginTop: '2px',
+                          boxShadow: '0 4px 6px rgba(0,0,0,0.5)'
+                        }}>
+                          <div 
+                            style={{ padding: '8px 10px', cursor: 'pointer', borderBottom: '1px solid var(--border-color)', color: 'white' }}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setSoundCategoryFilter('');
+                              setShowCategoryDropdown(false);
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = '#333'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                          >
+                            <em>All Categories</em>
+                          </div>
+                          {uniqueCategories.filter(cat => cat !== 'All' && cat.toLowerCase().includes(soundCategoryFilter.toLowerCase())).map(cat => (
+                            <div 
+                              key={cat}
+                              style={{ padding: '8px 10px', cursor: 'pointer', color: 'white' }}
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                setSoundCategoryFilter(cat);
+                                setShowCategoryDropdown(false);
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = '#333'}
+                              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                            >
+                              {cat}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ color: 'var(--text-muted)' }}>Sort by:</label>
+                    <select 
+                      value={soundSortBy} 
+                      onChange={(e) => setSoundSortBy(e.target.value)}
+                      style={{ background: 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      <option value="date-desc">Date (Newest)</option>
+                      <option value="date-asc">Date (Oldest)</option>
+                      <option value="name-asc">Name (A-Z)</option>
+                      <option value="name-desc">Name (Z-A)</option>
+                    </select>
+                  </div>
                 </div>
               )}
             </div>
@@ -526,7 +674,11 @@ function App() {
             <ItemsDirectory items={data.items} rarities={data.rarities} />
           )}
 
-          {activeTab === 'inventory' && (
+          {activeTab === 'contribute' && (
+          <Submissions twitchUser={twitchUser} twitchToken={twitchToken} apiUrl={apiUrl} />
+        )}
+
+        {activeTab === 'inventory' && (
             <UserInventory inventory={data.inventory} items={data.items} activeEffects={data.activeEffects} userModifiers={data.userModifiers} pendingFish={data.pendingFish} userStats={data.userStats} economyRates={data.economyRates} />
           )}
         </>
