@@ -122,7 +122,8 @@ function App() {
   });
   const [copiedId, setCopiedId] = useState(null);
   const [volume, setVolume] = useState(0.2); // Default 20% volume
-  const [soundCategoryFilter, setSoundCategoryFilter] = useState('');
+  const [soundCategoryFilters, setSoundCategoryFilters] = useState([]);
+  const [soundCategoryInput, setSoundCategoryInput] = useState('');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [soundSortBy, setSoundSortBy] = useState('date-desc');
   
@@ -261,11 +262,15 @@ function App() {
   const filteredDefaults = data.defaultCommands.filter(c => !adminCommands.includes(c.command) && c.command.toLowerCase().includes(searchTerm.toLowerCase()));
   const filteredCustoms = data.customCommands.filter(c => c.command.toLowerCase().includes(searchTerm.toLowerCase()) || c.action.toLowerCase().includes(searchTerm.toLowerCase()));
   
-  const uniqueCategories = ['All', ...new Set(data.sounds.map(s => s.category || 'Uncategorized').filter(Boolean))];
+  const uniqueCategories = ['All', ...new Set(data.sounds.flatMap(s => (s.categories && s.categories.length > 0) ? s.categories : ['Uncategorized']).filter(Boolean))];
 
   const filteredSounds = data.sounds
     .filter(s => (s.filename || '').toLowerCase().includes(searchTerm.toLowerCase()))
-    .filter(s => !soundCategoryFilter || soundCategoryFilter === 'All' || (s.category || 'Uncategorized') === soundCategoryFilter)
+    .filter(s => {
+      if (soundCategoryFilters.length === 0) return true;
+      const cats = (s.categories && s.categories.length > 0) ? s.categories : ['Uncategorized'];
+      return soundCategoryFilters.some(filter => cats.includes(filter));
+    })
     .sort((a, b) => {
       if (soundSortBy === 'name-asc') return (a.filename || '').localeCompare(b.filename || '');
       if (soundSortBy === 'name-desc') return (b.filename || '').localeCompare(a.filename || '');
@@ -544,80 +549,68 @@ function App() {
                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Available Playsounds ({filteredSounds.length})</span>
               </h2>
               {!collapsed.sounds && (
-                <div className="sort-controls" onClick={(e) => e.stopPropagation()} style={{ marginTop: '5px', display: 'flex', gap: '15px' }}>
-                  <div style={{display:'flex', alignItems:'center', gap:'5px'}}>
-                    <label style={{ color: 'var(--text-muted)' }}>Category:</label>
-                    <div style={{ position: 'relative' }}>
-                      <input 
-                        value={soundCategoryFilter} 
-                        onChange={(e) => {
-                          setSoundCategoryFilter(e.target.value);
-                          setShowCategoryDropdown(true);
-                        }}
-                        onFocus={() => setShowCategoryDropdown(true)}
-                        onBlur={() => setTimeout(() => setShowCategoryDropdown(false), 200)}
-                        placeholder="Type or select..."
-                        style={{ background: 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)', padding: '5px 10px', borderRadius: '4px', width: '150px' }}
-                      />
-                      {showCategoryDropdown && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '100%',
-                          left: '0',
-                          width: '100%',
-                          maxHeight: '200px',
-                          overflowY: 'auto',
-                          background: '#1a1a1a',
-                          border: '1px solid var(--border-color)',
-                          borderRadius: '4px',
-                          zIndex: 10,
-                          marginTop: '2px',
-                          boxShadow: '0 4px 6px rgba(0,0,0,0.5)'
-                        }}>
-                          <div 
-                            style={{ padding: '8px 10px', cursor: 'pointer', borderBottom: '1px solid var(--border-color)', color: 'white' }}
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              setSoundCategoryFilter('');
-                              setShowCategoryDropdown(false);
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = '#333'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                          >
-                            <em>All Categories</em>
+                <div className="sort-controls" onClick={(e) => e.stopPropagation()} style={{ marginTop: '5px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
+                  <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    <div style={{display:'flex', alignItems:'center', gap:'5px'}}>
+                      <label style={{ color: 'var(--text-muted)' }}>Categories:</label>
+                      <div style={{ position: 'relative' }}>
+                        <input 
+                          value={soundCategoryInput} 
+                          onChange={(e) => {
+                            setSoundCategoryInput(e.target.value);
+                            setShowCategoryDropdown(true);
+                          }}
+                          onFocus={() => setShowCategoryDropdown(true)}
+                          onBlur={() => setTimeout(() => setShowCategoryDropdown(false), 200)}
+                          placeholder="Type or select..."
+                          style={{ background: 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)', padding: '5px 10px', borderRadius: '4px', width: '150px' }}
+                        />
+                        {showCategoryDropdown && (
+                          <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'var(--panel-bg)', border: '1px solid var(--border-color)', borderRadius: '4px', zIndex: 10, maxHeight: '200px', overflowY: 'auto', marginTop: '4px' }}>
+                            {uniqueCategories.filter(c => c !== 'All' && !soundCategoryFilters.includes(c) && c.toLowerCase().includes(soundCategoryInput.toLowerCase())).map(cat => (
+                              <div 
+                                key={cat}
+                                style={{ padding: '8px 10px', cursor: 'pointer', color: 'white' }}
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  setSoundCategoryFilters(prev => [...prev, cat]);
+                                  setSoundCategoryInput('');
+                                  setShowCategoryDropdown(false);
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = '#333'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                              >
+                                {cat}
+                              </div>
+                            ))}
                           </div>
-                          {uniqueCategories.filter(cat => cat !== 'All' && cat.toLowerCase().includes(soundCategoryFilter.toLowerCase())).map(cat => (
-                            <div 
-                              key={cat}
-                              style={{ padding: '8px 10px', cursor: 'pointer', color: 'white' }}
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                setSoundCategoryFilter(cat);
-                                setShowCategoryDropdown(false);
-                              }}
-                              onMouseEnter={(e) => e.currentTarget.style.background = '#333'}
-                              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                            >
-                              {cat}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                        )}
+                      </div>
+                    </div>
+                    <div style={{display:'flex', alignItems:'center', gap:'5px'}}>
+                      <label style={{ color: 'var(--text-muted)' }}>Sort by:</label>
+                      <select 
+                        value={soundSortBy} 
+                        onChange={(e) => setSoundSortBy(e.target.value)}
+                        style={{ background: 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                      >
+                        <option value="date-desc">Date (Newest)</option>
+                        <option value="date-asc">Date (Oldest)</option>
+                        <option value="name-asc">Name (A-Z)</option>
+                        <option value="name-desc">Name (Z-A)</option>
+                      </select>
                     </div>
                   </div>
-                  <div>
-                    <label style={{ color: 'var(--text-muted)' }}>Sort by:</label>
-                    <select 
-                      value={soundSortBy} 
-                      onChange={(e) => setSoundSortBy(e.target.value)}
-                      style={{ background: 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                      <option value="date-desc">Date (Newest)</option>
-                      <option value="date-asc">Date (Oldest)</option>
-                      <option value="name-asc">Name (A-Z)</option>
-                      <option value="name-desc">Name (Z-A)</option>
-                    </select>
-                  </div>
+                  {soundCategoryFilters.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', justifyContent: 'flex-end', maxWidth: '400px' }}>
+                      {soundCategoryFilters.map(filter => (
+                        <span key={filter} style={{ background: 'var(--accent-color, #c97cff)', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', color: '#fff' }}>
+                          {filter}
+                          <button onClick={(e) => { e.stopPropagation(); setSoundCategoryFilters(prev => prev.filter(f => f !== filter)); }} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0, fontSize: '14px', lineHeight: '1' }}>&times;</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
