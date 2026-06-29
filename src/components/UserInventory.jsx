@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Archive, Clock, Zap, User, Loader2 } from 'lucide-react';
 
-const UserInventory = ({ inventory = [], items, activeEffects = [], userModifiers = [], pendingFish = [], userStats = [], economyRates }) => {
-  const [displaySearch, setDisplaySearch] = useState('');
-  const [search, setSearch] = useState('');
+const UserInventory = ({ inventory = [], items, activeEffects = [], userModifiers = [], pendingFish = [], userStats = [], economyRates, twitchUser }) => {
+  const [displaySearch, setDisplaySearch] = useState(twitchUser || '');
+  const [search, setSearch] = useState(twitchUser || '');
   const [isSearching, setIsSearching] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
 

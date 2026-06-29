@@ -121,7 +121,7 @@ function App() {
     emotes: { key: 'chatwar_wins', dir: 'desc' }
   });
   const [copiedId, setCopiedId] = useState(null);
-  const [volume, setVolume] = useState(0.2); // Default 20% volume
+  const [volume, setVolume] = useState(1); // Default 20% volume
   const [soundCategoryFilters, setSoundCategoryFilters] = useState([]);
   const [soundCategoryInput, setSoundCategoryInput] = useState('');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
@@ -318,7 +318,18 @@ function App() {
             </div>
           </div>
 
-          <div className="twitch-auth" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      
+          <div className="search-bar">
+            <Search size={20} />
+            <input 
+              type="text" 
+              placeholder="Search..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+              <div className="twitch-auth" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             {twitchUser ? (
               <>
                 <span style={{ color: 'white', fontWeight: 'bold' }}>{twitchUser}</span>
@@ -337,28 +348,23 @@ function App() {
                 style={{ 
                   display: 'inline-flex', 
                   alignItems: 'center', 
-                  padding: '10px 16px', 
-                  background: '#9146FF', 
+                  gap: '8px',
+                  padding: '8px 16px', 
+                  background: 'rgba(145, 70, 255, 0.1)', 
+                  border: '1px solid #9146FF',
                   color: 'white', 
                   textDecoration: 'none', 
-                  borderRadius: '4px', 
+                  borderRadius: '6px', 
                   fontWeight: 'bold', 
+                  whiteSpace: 'nowrap',
                   opacity: twitchClientId ? 1 : 0.5 
                 }}
                 title={twitchClientId ? '' : 'Loading Client ID...'}
               >
+                <img src="/glitch_flat_purple.png" alt="Twitch Logo" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
                 Login with Twitch
               </a>
             )}
-          </div>
-          <div className="search-bar">
-            <Search size={20} />
-            <input 
-              type="text" 
-              placeholder="Search..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
           </div>
         </div>
       </div>
@@ -542,7 +548,7 @@ function App() {
 
           {activeTab === 'sounds' && (
             <div className="section">
-            <div className="section-header-flex" onClick={() => toggleSection('sounds')}>
+            <div className="section-header-flex " onClick={() => toggleSection('sounds')} style={{marginBottom: '16px'}}>
               <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', fontSize: '1.4rem' }}>
                 {collapsed.sounds ? <ChevronRight size={24} style={{marginRight: '8px', flexShrink: 0}} /> : <ChevronDown size={24} style={{marginRight: '8px', flexShrink: 0}} />}
                 <Volume2 size={24} style={{marginRight: '8px', flexShrink: 0}}/>
@@ -629,12 +635,27 @@ function App() {
                       <div className="sound-info">
                         <p className="sound-name" title={soundName}>{soundName}</p>
                         <p className="sound-command">{commandStr}</p>
-                        {(soundObj.customCost || soundObj.customCooldown) && (
-                          <div style={{ display: 'flex', gap: '5px', marginTop: '4px', flexWrap: 'wrap' }}>
-                            {soundObj.customCost && <span style={{ fontSize: '0.7rem', background: 'rgba(255,170,0,0.2)', color: '#ffaa00', padding: '2px 6px', borderRadius: '4px' }}>Cost: {soundObj.customCost}</span>}
-                            {soundObj.customCooldown && <span style={{ fontSize: '0.7rem', background: 'rgba(46,139,87,0.2)', color: '#2e8b57', padding: '2px 6px', borderRadius: '4px' }}>CD: {soundObj.customCooldown}ms</span>}
-                          </div>
-                        )}
+                        <div style={{ display: 'flex', gap: '5px', marginTop: '4px', flexWrap: 'wrap' }}>
+                          {(soundObj.categories || (soundObj.category ? [soundObj.category] : ['Uncategorized'])).map(cat => (
+                            <span 
+                              key={cat}
+                              title="Add to filter"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (!soundCategoryFilters.includes(cat)) {
+                                  setSoundCategoryFilters(prev => [...prev, cat]);
+                                }
+                              }}
+                              style={{ fontSize: '0.7rem', background: 'rgba(201, 124, 255, 0.2)', color: 'var(--accent-color, #c97cff)', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', border: '1px solid rgba(201, 124, 255, 0.4)' }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(201, 124, 255, 0.4)'}
+                              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(201, 124, 255, 0.2)'}
+                            >
+                              {cat}
+                            </span>
+                          ))}
+                          {soundObj.customCost && <span style={{ fontSize: '0.7rem', background: 'rgba(255,170,0,0.2)', color: '#ffaa00', padding: '2px 6px', borderRadius: '4px' }}>Cost: {soundObj.customCost}</span>}
+                          {soundObj.customCooldown && <span style={{ fontSize: '0.7rem', background: 'rgba(46,139,87,0.2)', color: '#2e8b57', padding: '2px 6px', borderRadius: '4px' }}>CD: {soundObj.customCooldown}ms</span>}
+                        </div>
                       </div>
                       <Copy size={18} className="copy-icon" />
                     </div>
@@ -672,7 +693,7 @@ function App() {
         )}
 
         {activeTab === 'inventory' && (
-            <UserInventory inventory={data.inventory} items={data.items} activeEffects={data.activeEffects} userModifiers={data.userModifiers} pendingFish={data.pendingFish} userStats={data.userStats} economyRates={data.economyRates} />
+            <UserInventory inventory={data.inventory} items={data.items} activeEffects={data.activeEffects} userModifiers={data.userModifiers} pendingFish={data.pendingFish} userStats={data.userStats} economyRates={data.economyRates} twitchUser={twitchUser} />
           )}
         </>
       )}

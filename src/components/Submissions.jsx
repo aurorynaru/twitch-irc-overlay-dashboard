@@ -68,8 +68,8 @@ const CategoryInput = ({ type, apiUrl, categories, setCategories }) => {
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          placeholder={categories.length >= 3 ? "Limit reached" : "e.g. funny"}
-          disabled={categories.length >= 3}
+          placeholder={categories.length >= 5 ? "Limit reached" : "e.g. funny"}
+          disabled={categories.length >= 5}
           style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'white', boxSizing: 'border-box' }}
         />
         {suggestions.length > 0 && (
