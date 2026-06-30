@@ -489,7 +489,12 @@ const Submissions = ({ twitchUser, twitchToken, apiUrl }) => {
                           {parsedContent}
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85em', color: 'var(--text-muted)', marginTop: '5px' }}>
-                          <span>Submitted: {new Date(sub.created_at).toLocaleDateString()}</span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <span>Submitted: {new Date(sub.created_at).toLocaleDateString()}</span>
+                            {(sub.status === 'approved' || sub.status === 'rejected') && sub.reviewer && (
+                              <span>{sub.status === 'approved' ? 'Approved' : 'Rejected'} by: <strong style={{color: 'var(--text-color)'}}>{sub.reviewer}</strong></span>
+                            )}
+                          </div>
                           {sub.status === 'approved' && (
                             <span style={{ color: '#00C851', fontWeight: 'bold' }}>Points Earned: {sub.points_earned || 0}</span>
                           )}
