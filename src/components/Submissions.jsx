@@ -309,7 +309,7 @@ const Submissions = ({ twitchUser, twitchToken, apiUrl }) => {
                   <textarea 
                     value={playsoundDesc}
                     onChange={(e) => setPlaysoundDesc(e.target.value)}
-                    placeholder="e.g. Please clip from 0:15 to 0:18, command name could be !wow"
+                    placeholder="e.g. random text"
                     rows={4}
                     style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'white', resize: 'vertical' }}
                   />
