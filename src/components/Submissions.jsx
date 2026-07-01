@@ -309,7 +309,7 @@ const Submissions = ({ twitchUser, twitchToken, apiUrl }) => {
                   <textarea 
                     value={playsoundDesc}
                     onChange={(e) => setPlaysoundDesc(e.target.value)}
-                    placeholder="e.g. random text"
+                    placeholder="youtube link where you got the audio clip and describe what it is."
                     rows={4}
                     style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'white', resize: 'vertical' }}
                   />
