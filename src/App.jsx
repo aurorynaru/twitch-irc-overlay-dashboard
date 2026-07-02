@@ -121,7 +121,7 @@ function App() {
     emotes: { key: 'chatwar_wins', dir: 'desc' }
   });
   const [copiedId, setCopiedId] = useState(null);
-  const [volume, setVolume] = useState(1); // Default 20% volume
+  const [volume, setVolume] = useState(0.85); // Default 20% volume
   const [soundCategoryFilters, setSoundCategoryFilters] = useState([]);
   const [soundCategoryInput, setSoundCategoryInput] = useState('');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
