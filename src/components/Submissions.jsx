@@ -280,7 +280,7 @@ const Submissions = ({ twitchUser, twitchToken, apiUrl }) => {
             {activeTab === 'playsound' ? (
               <>
                 <div style={{ background: 'var(--panel-bg)', padding: '15px', borderRadius: '8px', fontSize: '0.9em', color: 'var(--text-muted)' }}>
-                  <strong>Tip:</strong> A link to <code>https://nuuls.com/</code> with an already clipped and edited audio file (mp3 or ogg) is highly preferred!
+                  <strong>Tip:</strong> A link to <code>https://nuuls.com/</code> with an already clipped and edited audio file (mp3 or ogg) is highly preferred! You will also get points for every playsound you submit and if someone redeems it!.
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontWeight: 'bold' }}>Audio Link</label>
@@ -309,7 +309,7 @@ const Submissions = ({ twitchUser, twitchToken, apiUrl }) => {
                   <textarea 
                     value={playsoundDesc}
                     onChange={(e) => setPlaysoundDesc(e.target.value)}
-                    placeholder="youtube link where you got the audio clip and describe what it is."
+                    placeholder="youtube link / video link where you got the audio clip and describe what it is."
                     rows={4}
                     style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'white', resize: 'vertical' }}
                   />
@@ -319,7 +319,7 @@ const Submissions = ({ twitchUser, twitchToken, apiUrl }) => {
             ) : (
               <>
                 <div style={{ background: 'var(--panel-bg)', padding: '15px', borderRadius: '8px', fontSize: '0.9em', color: 'var(--text-muted)' }}>
-                  Submit fun trivia questions for chat to guess! Be sure the answer isn't too long or hard to spell.
+                  Submit trivia questions for chat to guess! Be sure the answer isn't too long or hard to spell. You will also get points for every trivia question you submit and if someone answers it correctly!
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontWeight: 'bold' }}>Trivia Question</label>
