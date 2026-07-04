@@ -391,7 +391,7 @@ function App() {
                 </div>
                 <div className="card">
                   <div className="card-header"><h3 className="card-title">Gift Sub{data.rewards.giftsub_cap ? ` (max reward ${data.rewards.giftsub_cap.toLocaleString()})` : ''}</h3></div>
-                  <div className="card-body"><span className="stat-value">{data.rewards.giftsub} {data.rewards.giftsub_scaling ? `+ ((total gifted subs × total gifted subs) × ${data.rewards.giftsub_scaling} )` : ''} </span></div>
+                  <div className="card-body"><span className="stat-value">({data.rewards.giftsub} × total gifted subs) {data.rewards.giftsub_scaling ? `+ ((total gifted subs × total gifted subs) × ${data.rewards.giftsub_scaling} )` : ''} </span></div>
                 </div>
                 <div className="card">
                   <div className="card-header"><h3 className="card-title">Max Buff Bonus (Gamble/Bets)</h3></div>
