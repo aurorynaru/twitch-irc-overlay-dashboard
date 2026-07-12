@@ -465,12 +465,18 @@ function App() {
                       return null;
                     })()}
                     <div className="card-body">
-                      {Object.entries(cmd.settings).map(([key, val]) => (
-                        <div className="stat-row" key={key}>
-                          <span className="stat-label">{key}:</span>
-                          <span className="stat-value">{val !== undefined ? val : 'Default'}</span>
-                        </div>
-                      ))}
+                      {Object.entries(cmd.settings).map(([key, val]) => {
+                        let displayVal = val !== undefined ? val : 'Default';
+                        if (val !== undefined && (key.toLowerCase().includes('cooldown') || key.toLowerCase().includes('duration')) && !isNaN(val)) {
+                          displayVal = `${(Number(val) / 1000).toFixed(1).replace(/\.0$/, '')}s`;
+                        }
+                        return (
+                          <div className="stat-row" key={key}>
+                            <span className="stat-label">{key}:</span>
+                            <span className="stat-value">{displayVal}</span>
+                          </div>
+                        );
+                      })}
                       {cmd.command === '!showemote' && data.emoteModifiers && Object.keys(data.emoteModifiers).length > 0 && (
                         <div style={{ marginTop: '15px' }}>
                           <h4 style={{ margin: '0 0 10px 0', color: 'var(--accent)', borderBottom: '1px solid var(--border)', paddingBottom: '4px' }}>Available Modifiers</h4>
@@ -654,7 +660,7 @@ function App() {
                             </span>
                           ))}
                           {soundObj.customCost && <span style={{ fontSize: '0.7rem', background: 'rgba(255,170,0,0.2)', color: '#ffaa00', padding: '2px 6px', borderRadius: '4px' }}>Cost: {soundObj.customCost}</span>}
-                          {soundObj.customCooldown && <span style={{ fontSize: '0.7rem', background: 'rgba(46,139,87,0.2)', color: '#2e8b57', padding: '2px 6px', borderRadius: '4px' }}>CD: {soundObj.customCooldown}ms</span>}
+                          {soundObj.customCooldown && <span style={{ fontSize: '0.7rem', background: 'rgba(46,139,87,0.2)', color: '#2e8b57', padding: '2px 6px', borderRadius: '4px' }}>CD: {!isNaN(soundObj.customCooldown) ? `${(Number(soundObj.customCooldown) / 1000).toFixed(1).replace(/\\.0$/, '')}s` : `${soundObj.customCooldown}ms`}</span>}
                         </div>
                       </div>
                       <Copy size={18} className="copy-icon" />
