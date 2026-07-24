@@ -95,7 +95,8 @@ const adminCommands = [
   '!masspointssub', '!chatcooldown', '!givepoints', '!removepoints', 
   '!deleteplaysound', '!editrewards', '!emotesize', '!emoteduration', 
   '!clearoverlay', '!editconfig', '!refreshemotes', '!dueltax', 
-  '!giveitem', '!reloaditems', '!global'
+  '!giveitem', '!reloaditems', '!global', '!raffle', '!multiraffle', 
+  '!chatwar', '!chatwarcancel', '!betstart', '!betstop'
 ];
 
 function App() {
