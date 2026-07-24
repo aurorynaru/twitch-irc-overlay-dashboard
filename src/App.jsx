@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Search, Play, Pause, Volume2, Database, Terminal, Settings, ChevronDown, ChevronRight, Copy, RefreshCw } from 'lucide-react';
+import { Search, Play, Pause, Volume2, Database, Terminal, Settings, ChevronDown, ChevronRight, Copy, RefreshCw, Shield } from 'lucide-react';
 import Leaderboards from './components/Leaderboards';
 import ItemsDirectory from './components/ItemsDirectory';
 import Submissions from './components/Submissions';
@@ -22,7 +22,7 @@ const commandInstructions = {
   '!commandlist': 'Show all commands.',
   '!addcommand': 'Add a custom command (Admin). Usage: !addcommand <cmd> <action>',
   '!removecommand': 'Remove a custom command (Admin). Usage: !removecommand <cmd>',
-  '!editcommand': 'Edit custom command cost/cooldown (Admin). Usage: !editcommand <cmd> <setting> <value>',
+  '!editcommand': 'Edit custom command cost/cooldown (Admin). Usage: !editcommand <cmd> <setting> <value> !editcommand !gamble offlineonly true',
   '!duel': 'Challenge another user for points! Usage: !duel @user <amount>',
   '!acceptduel': 'Accept a pending duel request.',
   '!declineduel': 'Decline a pending duel request.',
@@ -104,7 +104,7 @@ function App() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [apiUrl, setApiUrl] = useState(import.meta.env.VITE_API_URL); 
-  const [collapsed, setCollapsed] = useState({ builtIn: false, custom: false, sounds: false, stats: false, items: false, inventory: false });
+  const [collapsed, setCollapsed] = useState({ builtIn: false, admin: false, custom: false, sounds: false, stats: false, items: false, inventory: false });
   const [activeTab, setActiveTab] = useState('home');
   const [twitchToken, setTwitchToken] = useState(localStorage.getItem('twitchToken') || null);
   const [twitchUser, setTwitchUser] = useState(null);
@@ -260,6 +260,11 @@ function App() {
   };
 
   const filteredDefaults = data.defaultCommands.filter(c => !adminCommands.includes(c.command) && c.command.toLowerCase().includes(searchTerm.toLowerCase()));
+  const adminFromDefault = data.defaultCommands.filter(c => adminCommands.includes(c.command));
+  const missingAdminCmdNames = adminCommands.filter(ac => !data.defaultCommands.some(c => c.command === ac));
+  const missingAdminCmds = missingAdminCmdNames.map(ac => ({ command: ac, settings: {} }));
+  const allAdminCmds = [...adminFromDefault, ...missingAdminCmds];
+  const filteredAdmin = allAdminCmds.filter(c => c.command.toLowerCase().includes(searchTerm.toLowerCase()));
   const filteredCustoms = data.customCommands.filter(c => c.command.toLowerCase().includes(searchTerm.toLowerCase()) || c.action.toLowerCase().includes(searchTerm.toLowerCase()));
   
   const uniqueCategories = ['All', ...new Set(data.sounds.flatMap(s => (s.categories && s.categories.length > 0) ? s.categories : ['Uncategorized']).filter(Boolean))];
@@ -515,6 +520,59 @@ function App() {
                   </div>
                 ))}
                 {filteredDefaults.length === 0 && <p style={{color: 'var(--text-muted)'}}>No default commands found.</p>}
+              </div>
+            </div>
+          </div>
+
+          <div className="section">
+            <h2 onClick={() => toggleSection('admin')}>
+              {collapsed.admin ? <ChevronRight size={24} style={{marginRight: '8px'}} /> : <ChevronDown size={24} style={{marginRight: '8px'}} />}
+              <Shield size={24} style={{marginRight: '8px'}}/> Admin Commands ({filteredAdmin.length})
+            </h2>
+            <div className={`section-content ${collapsed.admin ? 'collapsed' : ''}`}>
+              <div className="grid">
+                {filteredAdmin.map(cmd => (
+                  <div key={cmd.command} className="card" onClick={() => copyToClipboard(cmd.command, cmd.command)}>
+                    {copiedId === cmd.command && <div className="copy-toast">Copied!</div>}
+                    <div className="card-header" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                      <h3 className="card-title" style={{ margin: 0 }}>{cmd.command}</h3>
+                      <span style={{ background: '#e53e3e', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75em', fontWeight: 'bold' }}>Admin</span>
+                      {cmd.isDisabled && <span style={{ background: '#ff4444', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75em', fontWeight: 'bold' }}>Disabled</span>}
+                      {cmd.isSubOnly && <span style={{ background: '#9146FF', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75em', fontWeight: 'bold' }}>Sub Only</span>}
+                      {cmd.isOfflineOnly && <span style={{ background: '#555', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75em', fontWeight: 'bold' }}>Offline Only</span>}
+                      <Copy size={18} className="copy-icon" style={{ marginLeft: 'auto' }} />
+                    </div>
+                    {commandInstructions[cmd.command] && (
+                      <div className="card-instruction">{commandInstructions[cmd.command]}</div>
+                    )}
+                    {(() => {
+                      const aliases = Object.keys(builtInAliases).filter(alias => builtInAliases[alias] === cmd.command);
+                      if (aliases.length > 0) {
+                        return (
+                          <div className="card-instruction" style={{ marginTop: '5px', color: 'var(--text-muted)', fontSize: '0.9em' }}>
+                            <strong>Aliases: </strong> {aliases.join(', ')}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                    <div className="card-body">
+                      {cmd.settings && Object.entries(cmd.settings).map(([key, val]) => {
+                        let displayVal = val !== undefined ? val : 'Default';
+                        if (val !== undefined && (key.toLowerCase().includes('cooldown') || key.toLowerCase().includes('duration')) && !isNaN(val)) {
+                          displayVal = `${(Number(val) / 1000).toFixed(1).replace(/\.0$/, '')}s`;
+                        }
+                        return (
+                          <div className="stat-row" key={key}>
+                            <span className="stat-label">{key}:</span>
+                            <span className="stat-value">{displayVal}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+                {filteredAdmin.length === 0 && <p style={{color: 'var(--text-muted)'}}>No admin commands found.</p>}
               </div>
             </div>
           </div>
