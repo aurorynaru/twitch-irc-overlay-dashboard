@@ -105,7 +105,7 @@ function App() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [apiUrl, setApiUrl] = useState(import.meta.env.VITE_API_URL); 
-  const [collapsed, setCollapsed] = useState({ builtIn: true, admin: true, custom: true, sounds: false, stats: false, items: false, inventory: false });
+  const [collapsed, setCollapsed] = useState({ builtIn: false, admin: true, custom: true, sounds: false, stats: false, items: false, inventory: false });
   const [activeTab, setActiveTab] = useState('home');
   const [twitchToken, setTwitchToken] = useState(localStorage.getItem('twitchToken') || null);
   const [twitchUser, setTwitchUser] = useState(null);
