@@ -22,7 +22,7 @@ const commandInstructions = {
   '!commandlist': 'Show all commands.',
   '!addcommand': 'Add a custom command (Admin). Usage: !addcommand <cmd> <action>',
   '!removecommand': 'Remove a custom command (Admin). Usage: !removecommand <cmd>',
-  '!editcommand': 'Edit custom command cost/cooldown (Admin). Usage: !editcommand <cmd> <setting> <value> !editcommand !gamble offlineonly true',
+  '!editcommand': 'Edit custom command cost/cooldown (Admin). Usage: !editcommand <cmd> <setting> <value> !editcommand !gamble offlineonly true | !editcommand !gamble sub true',
   '!duel': 'Challenge another user for points! Usage: !duel @user <amount>',
   '!acceptduel': 'Accept a pending duel request.',
   '!declineduel': 'Decline a pending duel request.',
@@ -105,7 +105,7 @@ function App() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [apiUrl, setApiUrl] = useState(import.meta.env.VITE_API_URL); 
-  const [collapsed, setCollapsed] = useState({ builtIn: false, admin: false, custom: false, sounds: false, stats: false, items: false, inventory: false });
+  const [collapsed, setCollapsed] = useState({ builtIn: true, admin: true, custom: true, sounds: false, stats: false, items: false, inventory: false });
   const [activeTab, setActiveTab] = useState('home');
   const [twitchToken, setTwitchToken] = useState(localStorage.getItem('twitchToken') || null);
   const [twitchUser, setTwitchUser] = useState(null);
