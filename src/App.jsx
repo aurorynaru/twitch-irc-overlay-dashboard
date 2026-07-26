@@ -442,7 +442,7 @@ function App() {
           <div className="section">
             <h2 onClick={() => toggleSection('builtIn')}>
               {collapsed.builtIn ? <ChevronRight size={24} style={{marginRight: '8px'}} /> : <ChevronDown size={24} style={{marginRight: '8px'}} />}
-              <Settings size={24} style={{marginRight: '8px'}}/> Built-in Commands
+              <Settings size={24} style={{marginRight: '8px'}}/> User Commands
             </h2>
             <div className={`section-content ${collapsed.builtIn ? 'collapsed' : ''}`}>
               <div className="grid">
