@@ -5,6 +5,7 @@ import Leaderboards from './components/Leaderboards';
 import ItemsDirectory from './components/ItemsDirectory';
 import Submissions from './components/Submissions';
 import UserInventory from './components/UserInventory';
+import PatchNotes from './components/PatchNotes';
 
 const commandInstructions = {
   '!playsound': 'Play an audio file. Usage: !playsound <sound_name>',
@@ -300,6 +301,7 @@ function App() {
             <option value="items">Items</option>
             <option value="inventory">Users</option>
             <option value="contribute">Contribute</option>
+            <option value="patch-notes">Patch Notes</option>
           </select>
         </div>
         
@@ -760,6 +762,10 @@ function App() {
 
         {activeTab === 'inventory' && (
             <UserInventory inventory={data.inventory} items={data.items} activeEffects={data.activeEffects} userModifiers={data.userModifiers} pendingFish={data.pendingFish} userStats={data.userStats} economyRates={data.economyRates} twitchUser={twitchUser} spamProtectedUsers={data.spamProtectedUsers} />
+          )}
+
+        {activeTab === 'patch-notes' && (
+            <PatchNotes />
           )}
         </>
       )}
