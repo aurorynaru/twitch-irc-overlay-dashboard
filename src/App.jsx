@@ -479,9 +479,17 @@ function App() {
                         if (val !== undefined && (key.toLowerCase().includes('cooldown') || key.toLowerCase().includes('duration')) && !isNaN(val)) {
                           displayVal = `${(Number(val) / 1000).toFixed(1).replace(/\.0$/, '')}s`;
                         }
+                        
+                        let displayKey = key;
+                        if (key === 'global_chat_cooldown') {
+                          displayKey = 'Global Cooldown';
+                        } else {
+                          displayKey = key.charAt(0).toUpperCase() + key.slice(1);
+                        }
+
                         return (
                           <div className="stat-row" key={key}>
-                            <span className="stat-label">{key}:</span>
+                            <span className="stat-label">{displayKey}:</span>
                             <span className="stat-value">{displayVal}</span>
                           </div>
                         );
