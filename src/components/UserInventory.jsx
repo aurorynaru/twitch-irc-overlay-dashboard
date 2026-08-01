@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Archive, Clock, Zap, User, Loader2 } from 'lucide-react';
 
-const UserInventory = ({ inventory = [], items, activeEffects = [], userModifiers = [], pendingFish = [], userStats = [], economyRates, twitchUser }) => {
+const UserInventory = ({ inventory = [], items, activeEffects = [], userModifiers = [], pendingFish = [], userStats = [], economyRates, twitchUser, spamProtectedUsers = {} }) => {
   const [displaySearch, setDisplaySearch] = useState(twitchUser || '');
   const [search, setSearch] = useState(twitchUser || '');
   const [isSearching, setIsSearching] = useState(false);
@@ -182,6 +182,11 @@ const UserInventory = ({ inventory = [], items, activeEffects = [], userModifier
       <div className="card" style={{ padding: '20px', background: 'linear-gradient(135deg, rgba(201, 124, 255, 0.1), rgba(124, 58, 237, 0.1))', border: '1px solid var(--accent-color, #c97cff)', marginBottom: '20px' }}>
         <h3 style={{ margin: '0 0 15px 0', color: 'var(--accent-color, #c97cff)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <User size={24} /> {matchedUser.username}'s Profile
+          {spamProtectedUsers && spamProtectedUsers[matchedUser.username] && (
+            <span style={{ fontSize: '0.6em', background: '#ef4444', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '10px' }}>
+              Spam Blocked ({Math.ceil((spamProtectedUsers[matchedUser.username] - Date.now()) / 1000 / 60)}m left)
+            </span>
+          )}
         </h3>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px', marginBottom: '20px' }}>

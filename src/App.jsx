@@ -100,7 +100,7 @@ const adminCommands = [
 ];
 
 function App() {
-  const [data, setData] = useState({ defaultCommands: [], customCommands: [], sounds: [], rewards: {}, emoteModifiers: {}, userStats: [], emoteStats: [], items: {}, rarities: [], inventory: [], activeEffects: [], userModifiers: [], economyRates: null });
+  const [data, setData] = useState({ defaultCommands: [], customCommands: [], sounds: [], rewards: {}, emoteModifiers: {}, userStats: [], emoteStats: [], items: {}, rarities: [], inventory: [], activeEffects: [], userModifiers: [], economyRates: null, spamProtectedUsers: {} });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -213,6 +213,7 @@ function App() {
           activeEffects: invRes.data?.activeEffects || [],
           userModifiers: invRes.data?.userModifiers || [],
           pendingFish: invRes.data?.pendingFish || [],
+          spamProtectedUsers: invRes.data?.spamProtectedUsers || {},
           economyRates: economyRes.data || null
         });
         if (clientRes && clientRes.data && clientRes.data.client_id) {
@@ -758,7 +759,7 @@ function App() {
         )}
 
         {activeTab === 'inventory' && (
-            <UserInventory inventory={data.inventory} items={data.items} activeEffects={data.activeEffects} userModifiers={data.userModifiers} pendingFish={data.pendingFish} userStats={data.userStats} economyRates={data.economyRates} twitchUser={twitchUser} />
+            <UserInventory inventory={data.inventory} items={data.items} activeEffects={data.activeEffects} userModifiers={data.userModifiers} pendingFish={data.pendingFish} userStats={data.userStats} economyRates={data.economyRates} twitchUser={twitchUser} spamProtectedUsers={data.spamProtectedUsers} />
           )}
         </>
       )}
