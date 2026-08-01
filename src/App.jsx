@@ -483,6 +483,8 @@ function App() {
                         let displayKey = key;
                         if (key === 'global_chat_cooldown') {
                           displayKey = 'Global Cooldown';
+                        } else if (key === 'cooldown') {
+                          displayKey = 'User Cooldown';
                         } else {
                           displayKey = key.charAt(0).toUpperCase() + key.slice(1);
                         }
