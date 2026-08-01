@@ -13,7 +13,9 @@ const PatchNotes = () => {
           </h3>
           <p>Command spam protection</p>
           <ul style={{ lineHeight: '1.6', color: 'var(--text-muted)' }}>
-            <li><strong>Smart Detection:</strong> Spam limits are now active to prevent both focused command spam and keyboard smashing:
+            <li style={{ marginBottom: '8px' }}><strong>First-Time Warnings:</strong> Chatters who spam commands for the first time during a stream will now receive a warning instead of an immediate deduction of points and command block. The warning system resets automatically every time a new stream starts</li>
+            <li style={{ marginBottom: '8px' }}><strong>Progressive Punishments:</strong> If you ignore the warning, you will lose points and receive a command timeout. Furthermore, continuing to try and spam commands <em>while</em> you are timed out will result in even more points lost and your timeout duration being extended!</li>
+            <li><strong>Detection:</strong> Spam limits are now active to prevent focused command spam:
               <ul style={{ marginLeft: '20px', marginTop: '5px' }}>
                 <li><strong>Same Command Limits (e.g. 3 times in 60s):</strong> If you repeatedly use the exact same command over and over again (like using <code>!gamble</code> 4 times in 60 seconds), you will receive a timeout.</li>
                 <li><strong>Different Command Limits (e.g. 5 times in 5s):</strong> If you rapidly fire many different commands back-to-back (like using <code>!fish</code>, <code>!points</code>, <code>!inv</code>, <code>!use</code>, <code>!gamble</code>, and <code>!duel</code> all within 5 seconds), you will also receive a timeout.</li>
