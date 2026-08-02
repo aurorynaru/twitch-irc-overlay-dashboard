@@ -625,7 +625,7 @@ function App() {
           <div className="section faq-section" style={{ marginTop: '30px' }}>
             <h2 onClick={() => toggleSection('faq')}>
               {collapsed.faq ? <ChevronRight size={24} style={{marginRight: '8px'}} /> : <ChevronDown size={24} style={{marginRight: '8px'}} />}
-              FAQ
+              Frequently Asked Questions
             </h2>
             <div className={`section-content ${collapsed.faq ? 'collapsed' : ''}`}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
