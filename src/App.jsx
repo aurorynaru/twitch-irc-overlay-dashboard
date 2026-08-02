@@ -674,6 +674,13 @@ function App() {
                     <p style={{ margin: 0 }}>Levels increase the amount of points you earn (except for gambling, subs, resubs, bits, and redeeming watch streaks). It also increases your chance to catch legendary fish and rare fish per level.</p>
                   </div>
                 </div>
+
+                <div className="card">
+                  <h3 className="card-title" style={{ margin: 0, paddingBottom: '10px', borderBottom: '1px solid var(--border-color)' }}>Why isn't the bot responding to a command?</h3>
+                  <div className="card-body" style={{ marginTop: '10px' }}>
+                    <p style={{ margin: 0 }}>If the bot doesn't respond to a specific command regardless of who uses it, that means the command is currently on a <strong>Global Cooldown</strong>. You'll need to wait for the cooldown to expire before the command can be used again.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
