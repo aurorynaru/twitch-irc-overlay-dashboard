@@ -33,7 +33,7 @@ const PatchNotes = () => {
             <li><strong>Split Base Timers:</strong> The fishing cooldown now depends on the stream status:
               <ul style={{ marginLeft: '20px', marginTop: '5px' }}>
                 <li><strong>Online:</strong> Cooldown is 60 minutes.</li>
-                <li><strong>Offline:</strong> Cooldown is 10 minutes.</li>
+                <li><strong>Offline:</strong> Cooldown is 5 minutes.</li>
               </ul>
             </li>
           </ul>
