@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Search, Play, Pause, Volume2, Database, Terminal, Settings, ChevronDown, ChevronRight, Copy, RefreshCw, Shield } from 'lucide-react';
+import { Search, Play, Pause, Volume2, Database, Terminal, Settings, ChevronDown, ChevronRight, Copy, RefreshCw, Shield, Clock } from 'lucide-react';
 import Leaderboards from './components/Leaderboards';
 import ItemsDirectory from './components/ItemsDirectory';
 import Submissions from './components/Submissions';
@@ -101,7 +101,7 @@ const adminCommands = [
 ];
 
 function App() {
-  const [data, setData] = useState({ defaultCommands: [], customCommands: [], sounds: [], rewards: {}, emoteModifiers: {}, userStats: [], emoteStats: [], items: {}, rarities: [], inventory: [], activeEffects: [], userModifiers: [], economyRates: null, spamProtectedUsers: {} });
+  const [data, setData] = useState({ defaultCommands: [], customCommands: [], sounds: [], rewards: {}, emoteModifiers: {}, userStats: [], emoteStats: [], items: {}, rarities: [], inventory: [], activeEffects: [], userModifiers: [], economyRates: null, spamProtectedUsers: {}, cooldowns: { command: {}, playsound: {} } });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -111,6 +111,7 @@ function App() {
   const [twitchToken, setTwitchToken] = useState(localStorage.getItem('twitchToken') || null);
   const [twitchUser, setTwitchUser] = useState(null);
   const [twitchClientId, setTwitchClientId] = useState(null);
+  const [currentTime, setCurrentTime] = useState(Date.now());
 
   const [statsSort, setStatsSort] = useState({
     level: { key: 'level', dir: 'desc' },
@@ -135,6 +136,8 @@ function App() {
   useEffect(() => {
     fetchData(apiUrl);
     
+    const timeInterval = setInterval(() => setCurrentTime(Date.now()), 1000);
+    
     // Check for Twitch OAuth callback hash
     const hash = window.location.hash;
     if (hash && hash.includes('access_token')) {
@@ -147,15 +150,32 @@ function App() {
       }
     }
 
-    // Cleanup audio on unmount
     return () => {
-      audioRef.current.pause();
+      clearInterval(timeInterval);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
     };
-  }, []);
+  }, [apiUrl]);
 
   useEffect(() => {
-    audioRef.current.volume = volume;
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
   }, [volume]);
+
+  useEffect(() => {
+    const pollInterval = setInterval(() => {
+      const cleanUrl = apiUrl.replace(/\/$/, '');
+      axios.get(`${cleanUrl}/api/dashboard/config`).then(res => {
+        if (res.data.success && res.data.cooldowns) {
+          setData(prev => ({ ...prev, cooldowns: res.data.cooldowns }));
+        }
+      }).catch(() => {});
+    }, 5000);
+    return () => clearInterval(pollInterval);
+  }, [apiUrl]);
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -215,7 +235,8 @@ function App() {
           userModifiers: invRes.data?.userModifiers || [],
           pendingFish: invRes.data?.pendingFish || [],
           spamProtectedUsers: invRes.data?.spamProtectedUsers || {},
-          economyRates: economyRes.data || null
+          economyRates: economyRes.data || null,
+          cooldowns: configRes.data.cooldowns || { command: {}, playsound: {} }
         });
         if (clientRes && clientRes.data && clientRes.data.client_id) {
           setTwitchClientId(clientRes.data.client_id);
@@ -386,6 +407,86 @@ function App() {
         <>
           {activeTab === 'home' && (
             <>
+              {(() => {
+                const activeGlobalCooldowns = [];
+                if (data.cooldowns?.command) {
+                  Object.keys(data.cooldowns.command).forEach(key => {
+                    if (key.startsWith('GLOBAL_')) {
+                      const cmdName = key.replace('GLOBAL_', '');
+                      const startTime = data.cooldowns.command[key];
+                      const cmdConfig = data.defaultCommands?.find(c => c.command === cmdName);
+                      let cdDuration = 0;
+                      if (cmdConfig && cmdConfig.settings?.global_chat_cooldown) {
+                        cdDuration = Number(cmdConfig.settings.global_chat_cooldown);
+                      } else if (cmdConfig && cmdConfig.settings?.cooldown) {
+                        cdDuration = Number(cmdConfig.settings.cooldown);
+                      }
+                      
+                      if (cdDuration > 0) {
+                        const expiresAt = startTime + cdDuration;
+                        if (expiresAt > currentTime) {
+                          activeGlobalCooldowns.push({
+                            name: cmdName,
+                            type: 'Command',
+                            timeLeft: Math.ceil((expiresAt - currentTime) / 1000)
+                          });
+                        }
+                      }
+                    }
+                  });
+                }
+
+                if (data.cooldowns?.playsound) {
+                  Object.keys(data.cooldowns.playsound).forEach(cmdName => {
+                    const startTime = data.cooldowns.playsound[cmdName];
+                    const soundObj = data.sounds?.find(s => s.command === cmdName);
+                    let cdDuration = 10000;
+                    if (soundObj?.customCooldown !== undefined) {
+                      cdDuration = Number(soundObj.customCooldown);
+                    } else if (data.rewards?.playsound_cooldown) {
+                      cdDuration = Number(data.rewards.playsound_cooldown);
+                    }
+                    
+                    const expiresAt = startTime + cdDuration;
+                    if (expiresAt > currentTime) {
+                      activeGlobalCooldowns.push({
+                        name: cmdName,
+                        type: 'Sound',
+                        timeLeft: Math.ceil((expiresAt - currentTime) / 1000)
+                      });
+                    }
+                  });
+                }
+
+                activeGlobalCooldowns.sort((a, b) => b.timeLeft - a.timeLeft);
+
+                return (
+                  <div className="section global-cooldowns-section">
+                    <h2><Clock size={24} style={{marginRight: '8px'}}/> Active Global Cooldowns</h2>
+                    {activeGlobalCooldowns.length === 0 ? (
+                      <p style={{ color: 'var(--text-muted)' }}>No commands are currently on global cooldown.</p>
+                    ) : (
+                      <div className="grid">
+                        {activeGlobalCooldowns.map(cd => (
+                          <div key={cd.name} className="card">
+                            <div className="card-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '10px' }}>
+                              <h3 className="card-title" style={{ margin: 0 }}>{cd.name}</h3>
+                              <span style={{ background: cd.type === 'Sound' ? '#9146FF' : '#00C851', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75em', fontWeight: 'bold' }}>{cd.type}</span>
+                            </div>
+                            <div className="card-body">
+                              <div className="stat-row">
+                                <span className="stat-label">Time Remaining:</span>
+                                <span className="stat-value" style={{ color: '#ff4444', fontWeight: 'bold' }}>{cd.timeLeft}s</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
               {data.rewards && Object.keys(data.rewards).length > 0 && (
             <div className="section rewards-section">
               <h2><Settings size={24} style={{marginRight: '8px'}}/> Rewards Configuration</h2>
@@ -489,10 +590,31 @@ function App() {
                           displayKey = key.charAt(0).toUpperCase() + key.slice(1);
                         }
 
+                        let isGlobalCd = false;
+                        let globalCdLeft = 0;
+                        if (displayKey === 'Global Cooldown' && data.cooldowns?.command) {
+                          const startTime = data.cooldowns.command[`GLOBAL_${cmd.command}`];
+                          if (startTime) {
+                            const cdDuration = Number(val); // ensure val is a number
+                            const expiresAt = startTime + cdDuration;
+                            if (expiresAt > currentTime) {
+                              isGlobalCd = true;
+                              globalCdLeft = Math.ceil((expiresAt - currentTime) / 1000);
+                            }
+                          }
+                        }
+
                         return (
                           <div className="stat-row" key={key}>
                             <span className="stat-label">{displayKey}:</span>
-                            <span className="stat-value">{displayVal}</span>
+                            <span className="stat-value">
+                              {displayVal}
+                              {isGlobalCd && (
+                                <span style={{ marginLeft: '10px', color: '#ff4444', fontSize: '0.85em', fontWeight: 'bold' }}>
+                                  ({globalCdLeft}s left)
+                                </span>
+                              )}
+                            </span>
                           </div>
                         );
                       })}
@@ -794,8 +916,26 @@ function App() {
                               {cat}
                             </span>
                           ))}
-                          {soundObj.customCost && <span style={{ fontSize: '0.7rem', background: 'rgba(255,170,0,0.2)', color: '#ffaa00', padding: '2px 6px', borderRadius: '4px' }}>Cost: {soundObj.customCost}</span>}
-                          {soundObj.customCooldown && <span style={{ fontSize: '0.7rem', background: 'rgba(46,139,87,0.2)', color: '#2e8b57', padding: '2px 6px', borderRadius: '4px' }}>CD: {!isNaN(soundObj.customCooldown) ? `${(Number(soundObj.customCooldown) / 1000).toFixed(1).replace(/\\.0$/, '')}s` : `${soundObj.customCooldown}ms`}</span>}
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '5px' }}>
+                            {soundObj.isOfflineOnly && <span style={{ fontSize: '0.7rem', background: '#555', color: 'white', padding: '2px 6px', borderRadius: '4px' }}>Offline Only</span>}
+                            {soundObj.customCost && <span style={{ fontSize: '0.7rem', background: 'rgba(255,170,0,0.2)', color: '#ffaa00', padding: '2px 6px', borderRadius: '4px' }}>Cost: {soundObj.customCost}</span>}
+                            {(() => {
+                              const startTime = data.cooldowns?.playsound?.[soundObj.command];
+                              if (startTime) {
+                                const cdDuration = soundObj.customCooldown !== undefined ? Number(soundObj.customCooldown) : (data.rewards?.playsound_cooldown || 10000);
+                                const expiresAt = startTime + cdDuration;
+                                if (expiresAt > currentTime) {
+                                  return (
+                                    <span style={{ fontSize: '0.7rem', background: 'rgba(255,68,68,0.2)', color: '#ff4444', padding: '2px 6px', borderRadius: '4px' }}>
+                                      CD: {Math.ceil((expiresAt - currentTime) / 1000)}s
+                                    </span>
+                                  );
+                                }
+                              }
+                              return null;
+                            })()}
+                            {soundObj.customCooldown && <span style={{ fontSize: '0.7rem', background: 'rgba(46,139,87,0.2)', color: '#2e8b57', padding: '2px 6px', borderRadius: '4px' }}>CD: {!isNaN(soundObj.customCooldown) ? `${(Number(soundObj.customCooldown) / 1000).toFixed(1).replace(/\.0$/, '')}s` : `${soundObj.customCooldown}ms`}</span>}
+                          </div>
                         </div>
                       </div>
                       <Copy size={18} className="copy-icon" />
