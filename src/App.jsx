@@ -106,7 +106,7 @@ function App() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [apiUrl, setApiUrl] = useState(import.meta.env.VITE_API_URL); 
-  const [collapsed, setCollapsed] = useState({ builtIn: false, admin: true, custom: true, sounds: false, stats: false, items: false, inventory: false });
+  const [collapsed, setCollapsed] = useState({ builtIn: false, admin: true, custom: true, sounds: false, stats: false, items: false, inventory: false, faq: false });
   const [activeTab, setActiveTab] = useState('home');
   const [twitchToken, setTwitchToken] = useState(localStorage.getItem('twitchToken') || null);
   const [twitchUser, setTwitchUser] = useState(null);
@@ -621,6 +621,62 @@ function App() {
               </div>
             </div>
           </div>
+
+          <div className="section faq-section" style={{ marginTop: '30px' }}>
+            <h2 onClick={() => toggleSection('faq')}>
+              {collapsed.faq ? <ChevronRight size={24} style={{marginRight: '8px'}} /> : <ChevronDown size={24} style={{marginRight: '8px'}} />}
+              FAQ
+            </h2>
+            <div className={`section-content ${collapsed.faq ? 'collapsed' : ''}`}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div className="card">
+                  <h3 className="card-title" style={{ margin: 0, paddingBottom: '10px', borderBottom: '1px solid var(--border-color)' }}>How much points do I get?</h3>
+                  <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
+                    <p style={{ margin: 0 }}>Send a message in chat every {data?.rewards?.chat_cooldown || 25} minutes to earn points.</p>
+                    <ul style={{ paddingLeft: '20px', margin: 0 }}>
+                      <li><strong>Subs:</strong> {data?.rewards?.chat_sub || 1500} points</li>
+                      <li><strong>Non-subs:</strong> {data?.rewards?.chat_nonsub || 1000} points</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="card">
+                  <h3 className="card-title" style={{ margin: 0, paddingBottom: '10px', borderBottom: '1px solid var(--border-color)' }}>How does spam protection work?</h3>
+                  <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
+                    <div>
+                      <strong>First-Time Warnings:</strong>
+                      <p style={{ margin: '4px 0 0 0', color: 'var(--text-muted)' }}>Chatters who spam commands for the first time during a stream will now receive a warning instead of an immediate deduction of points and command block. The warning system resets automatically every time a new stream starts.</p>
+                    </div>
+                    <div>
+                      <strong>Progressive Punishments:</strong>
+                      <p style={{ margin: '4px 0 0 0', color: 'var(--text-muted)' }}>If you ignore the warning, you will lose points and receive a command timeout. Furthermore, continuing to try and spam commands while you are timed out will result in even more points lost and your timeout duration being extended!</p>
+                    </div>
+                    <div>
+                      <strong>Detection limits:</strong>
+                      <ul style={{ paddingLeft: '20px', margin: '4px 0 0 0', color: 'var(--text-muted)' }}>
+                        <li><strong>Same Command Limits (e.g. 3 times in 60s):</strong> If you repeatedly use the exact same command over and over again (like using !gamble 4 times in 60 seconds), you will receive a timeout.</li>
+                        <li><strong>Different Command Limits (e.g. 5 times in 5s):</strong> If you rapidly fire many different commands back-to-back (like using !fish, !points, !inv, !use, !gamble, and !duel all within 5 seconds), you will also receive a timeout.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="card">
+                  <h3 className="card-title" style={{ margin: 0, paddingBottom: '10px', borderBottom: '1px solid var(--border-color)' }}>How long do I have to wait so I won't get flagged as a spammer?</h3>
+                  <div className="card-body" style={{ marginTop: '10px' }}>
+                    <p style={{ margin: 0 }}>Just wait 1 minute between every command (except for !join and !shoot, which are exempt).</p>
+                  </div>
+                </div>
+
+                <div className="card">
+                  <h3 className="card-title" style={{ margin: 0, paddingBottom: '10px', borderBottom: '1px solid var(--border-color)' }}>What does leveling do?</h3>
+                  <div className="card-body" style={{ marginTop: '10px' }}>
+                    <p style={{ margin: 0 }}>Levels increase the amount of points you earn (except for gambling, subs, resubs, bits, and redeeming watch streaks). It also increases your chance to catch legendary fish and rare fish per level.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           </>
           )}
 
@@ -743,6 +799,7 @@ function App() {
               </div>
             </div>
           </div>
+
           )}
 
           {activeTab === 'stats' && (
