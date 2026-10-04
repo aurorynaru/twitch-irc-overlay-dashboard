@@ -1,11 +1,22 @@
 import React from 'react';
-import { Shield, Fish } from 'lucide-react';
+import { Shield, Fish, Volume2 } from 'lucide-react';
 
 const PatchNotes = () => {
   return (
     <div className="section">
       <h2>Patch Notes</h2>
       <div className="section-content" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+        <div className="card" style={{ borderLeft: '4px solid #8b5cf6', paddingLeft: '20px' }}>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#8b5cf6', marginTop: 0 }}>
+            <Volume2 size={24} /> Playsound Combos & Speed
+          </h3>
+          <p style={{ color: 'var(--text-muted)', marginTop: 0 }}>October 4, 2026</p>
+          <ul style={{ lineHeight: '1.6', color: 'var(--text-muted)' }}>
+            <li style={{ marginBottom: '8px' }}><strong>Combos:</strong> Play multiple sounds in one message and they will play one after another. Example: <code>!playsound sound1 sound2</code></li>
+            <li><strong>Speed:</strong> Add a number after a sound to change its speed. Higher is faster and higher pitched, lower is slower and deeper. Example: <code>!playsound sound1 2 sound2 0.5</code></li>
+          </ul>
+        </div>
 
         <div className="card" style={{ borderLeft: '4px solid #3b82f6', paddingLeft: '20px' }}>
           <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#3b82f6', marginTop: 0 }}>

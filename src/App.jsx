@@ -8,7 +8,7 @@ import UserInventory from './components/UserInventory';
 import PatchNotes from './components/PatchNotes';
 
 const commandInstructions = {
-  '!playsound': 'Play an audio file. Usage: !playsound <sound_name>',
+  '!playsound': 'Play an audio file. Usage: !playsound <sound_name> [speed] ... | Examples: !playsound sound1 sound2, !playsound sound1 2',
   '!showemote': 'Display an emote on the overlay. Usage: !showemote <emote> <modifier> | Examples: !showemote PogChamp RainTime hyper',
   '!betstart': 'Start a betting session. Usage: !betstart <Description> <choice1,choice2> <time_in_seconds> ',
   '!betstop': 'Resolve a bet. Usage: !betstop <winning_choice>',
