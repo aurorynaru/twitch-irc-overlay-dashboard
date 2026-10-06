@@ -6,6 +6,7 @@ import ItemsDirectory from './components/ItemsDirectory';
 import Submissions from './components/Submissions';
 import UserInventory from './components/UserInventory';
 import PatchNotes from './components/PatchNotes';
+import { pitchShiftBuffer } from './pitchShift';
 
 const commandInstructions = {
   '!playsound': 'Play an audio file. Usage: !playsound <sound_name> [speed] ... | Examples: !playsound sound1 sound2, !playsound sound1 2',
@@ -132,6 +133,11 @@ function App() {
   
   const [playingSound, setPlayingSound] = useState(null);
   const audioRef = useRef(new Audio());
+  const [pitch, setPitch] = useState(1);
+  const audioCtxRef = useRef(null);
+  const pitchedRef = useRef(null); // { source, gain } of the pitched preview that's playing
+  const pitchedActiveRef = useRef(false); // current preview is pitched (playing or still loading)
+  const playTokenRef = useRef(0);
 
   useEffect(() => {
     fetchData(apiUrl);
@@ -163,7 +169,14 @@ function App() {
     if (audioRef.current) {
       audioRef.current.volume = volume;
     }
+    if (pitchedRef.current) {
+      pitchedRef.current.gain.gain.value = volume;
+    }
   }, [volume]);
+
+  // Keep the selected pitch inside the limits set in the admin dashboard
+  const pitchRange = data.playsoundPitch || { min: 0.5, max: 2 };
+  const selectedPitch = Math.min(Math.max(pitch, pitchRange.min), pitchRange.max);
 
   useEffect(() => {
     const pollInterval = setInterval(() => {
@@ -236,7 +249,8 @@ function App() {
           pendingFish: invRes.data?.pendingFish || [],
           spamProtectedUsers: invRes.data?.spamProtectedUsers || {},
           economyRates: economyRes.data || null,
-          cooldowns: configRes.data.cooldowns || { command: {}, playsound: {} }
+          cooldowns: configRes.data.cooldowns || { command: {}, playsound: {} },
+          playsoundPitch: configRes.data.playsoundPitch || { min: 0.5, max: 2 }
         });
         if (clientRes && clientRes.data && clientRes.data.client_id) {
           setTwitchClientId(clientRes.data.client_id);
@@ -251,26 +265,87 @@ function App() {
     }
   };
 
+  const stopPitchedSound = () => {
+    if (pitchedRef.current) {
+      pitchedRef.current.source.onended = null;
+      try { pitchedRef.current.source.stop(); } catch { /* already stopped */ }
+      pitchedRef.current = null;
+    }
+  };
+
+  const playPitchedSound = async (soundName, soundUrl, token) => {
+    setPlayingSound(soundName);
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!audioCtxRef.current) audioCtxRef.current = new AudioContext();
+      const ctx = audioCtxRef.current;
+      ctx.resume();
+      const response = await fetch(soundUrl);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const decoded = await ctx.decodeAudioData(await response.arrayBuffer());
+      // Another sound was clicked while this one was loading
+      if (token !== playTokenRef.current) return;
+
+      const source = ctx.createBufferSource();
+      source.buffer = pitchShiftBuffer(ctx, decoded, selectedPitch);
+      const gain = ctx.createGain();
+      gain.gain.value = volume;
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.onended = () => {
+        if (pitchedRef.current?.source === source) {
+          pitchedRef.current = null;
+          pitchedActiveRef.current = false;
+          setPlayingSound(null);
+        }
+      };
+      pitchedRef.current = { source, gain };
+      source.start();
+    } catch (err) {
+      console.error('Failed to play pitched preview', err);
+      if (token === playTokenRef.current) {
+        pitchedActiveRef.current = false;
+        setPlayingSound(null);
+      }
+    }
+  };
+
   const playSound = (soundName) => {
     const cleanUrl = apiUrl.replace(/\/$/, '');
     const soundUrl = `${cleanUrl}/playsounds/${soundName}`;
-    
+
     if (playingSound === soundName) {
-      if (audioRef.current.paused) {
+      if (pitchedActiveRef.current) {
+        // Pitched previews can't pause, so clicking again stops them (also while still loading)
+        playTokenRef.current++;
+        pitchedActiveRef.current = false;
+        stopPitchedSound();
+        setPlayingSound(null);
+      } else if (audioRef.current.paused) {
         audioRef.current.play();
       } else {
         audioRef.current.pause();
         setPlayingSound(null);
       }
-    } else {
-      audioRef.current.src = soundUrl;
-      audioRef.current.play();
-      setPlayingSound(soundName);
-      
-      audioRef.current.onended = () => {
-        setPlayingSound(null);
-      };
+      return;
     }
+
+    const token = ++playTokenRef.current;
+    stopPitchedSound();
+    pitchedActiveRef.current = selectedPitch !== 1;
+    if (selectedPitch !== 1) {
+      audioRef.current.pause();
+      playPitchedSound(soundName, soundUrl, token);
+      return;
+    }
+
+    audioRef.current.src = soundUrl;
+    audioRef.current.play();
+    setPlayingSound(soundName);
+
+    audioRef.current.onended = () => {
+      setPlayingSound(null);
+    };
   };
 
   const copyToClipboard = (text, id) => {
@@ -820,6 +895,27 @@ function App() {
               {!collapsed.sounds && (
                 <div className="sort-controls" onClick={(e) => e.stopPropagation()} style={{ marginTop: '5px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
                   <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    <div style={{display:'flex', alignItems:'center', gap:'5px'}} title="Lower or higher pitch. The sound keeps the same length.">
+                      <label style={{ color: 'var(--text-muted)' }}>Pitch:</label>
+                      <input
+                        type="range"
+                        min={pitchRange.min}
+                        max={pitchRange.max}
+                        step="0.05"
+                        value={selectedPitch}
+                        onChange={(e) => setPitch(Number(parseFloat(e.target.value).toFixed(2)))}
+                        style={{ width: '110px', cursor: 'pointer' }}
+                      />
+                      <span style={{ color: 'white', minWidth: '40px' }}>{selectedPitch.toFixed(2)}</span>
+                      {/* Always rendered so the layout doesn't shift; dimmed when there's nothing to reset */}
+                      <button
+                        onClick={() => setPitch(1)}
+                        disabled={selectedPitch === 1}
+                        style={{ background: 'var(--bg-secondary)', color: 'white', border: '1px solid var(--border-color)', padding: '3px 8px', borderRadius: '4px', cursor: selectedPitch === 1 ? 'default' : 'pointer', opacity: selectedPitch === 1 ? 0.4 : 1 }}
+                      >
+                        Reset
+                      </button>
+                    </div>
                     <div style={{display:'flex', alignItems:'center', gap:'5px'}}>
                       <label style={{ color: 'var(--text-muted)' }}>Categories:</label>
                       <div style={{ position: 'relative' }}>
@@ -888,7 +984,7 @@ function App() {
                 {filteredSounds.map(soundObj => {
                   const sound = soundObj.filename;
                   const soundName = sound.split('.').slice(0, -1).join('.');
-                  const commandStr = `!playsound ${soundName}`;
+                  const commandStr = selectedPitch !== 1 ? `!playsound ${soundName} ${selectedPitch}` : `!playsound ${soundName}`;
                   return (
                     <div key={sound} className="card sound-card" onClick={() => copyToClipboard(commandStr, sound)}>
                       {copiedId === sound && <div className="copy-toast">Copied!</div>}
